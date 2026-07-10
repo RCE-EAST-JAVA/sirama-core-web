@@ -1,0 +1,38 @@
+created:
+    - database/factories/UserFactory.php
+    - database/factories/MasterJenisPerbaikanKkFactory.php
+    - database/factories/PengajuanFactory.php
+    - database/factories/RiwayatStatusFactory.php
+    - database/factories/FormKiaFactory.php
+    - database/factories/Form3In1Factory.php
+    - database/factories/FormKkPenambahanFactory.php
+    - database/factories/FormKkPenguranganFactory.php
+    - database/factories/FormKkPerbaikanFactory.php
+    - database/migrations/2026_07_10_184432_create_users_table.php
+    - database/migrations/2026_07_10_184433_create_master_jenis_perbaikan_kks_table.php
+    - database/migrations/2026_07_10_184434_create_pengajuans_table.php
+    - database/migrations/2026_07_10_184435_create_riwayat_statuses_table.php
+    - database/migrations/2026_07_10_184436_create_form_kias_table.php
+    - database/migrations/2026_07_10_184437_create_form3_in1s_table.php
+    - database/migrations/2026_07_10_184438_create_form_kk_penambahans_table.php
+    - database/migrations/2026_07_10_184439_create_form_kk_pengurangans_table.php
+    - database/migrations/2026_07_10_184440_create_form_kk_perbaikans_table.php
+    - app/Models/User.php
+    - app/Models/MasterJenisPerbaikanKk.php
+    - app/Models/Pengajuan.php
+    - app/Models/RiwayatStatus.php
+    - app/Models/FormKia.php
+    - app/Models/Form3In1.php
+    - app/Models/FormKkPenambahan.php
+    - app/Models/FormKkPengurangan.php
+    - app/Models/FormKkPerbaikan.php
+models:
+    User: { nik: 'string unique', name: string, no_whatsapp: string, password: string, role: 'enum:warga,admin_desa,admin_kecamatan default:warga', rememberToken: true }
+    MasterJenisPerbaikanKk: { nama_perbaikan: string, deskripsi: 'text nullable' }
+    Pengajuan: { user_id: 'id foreign:users', jenis_layanan: 'enum:kia,3_in_1,kk_penambahan,kk_pengurangan,kk_perbaikan,akta_kelahiran,akta_kematian', status: 'enum:berkas_diterima,diverifikasi_desa,diproses_kecamatan,selesai', lokasi_dokumen: 'string nullable', no_whatsapp: string }
+    RiwayatStatus: { pengajuan_id: 'id foreign:pengajuans', status_riwayat: string, catatan: 'text nullable' }
+    FormKia: { pengajuan_id: 'id foreign:pengajuans', nama_lengkap: string, tempat_lahir: string, tanggal_lahir: date, jenis_kelamin: 'enum:L,P', nama_kepala_keluarga: string, agama: string, kewarganegaraan: string, file_akta_kelahiran: string, file_kk: string, file_surat_nikah: string, file_foto_anak: string }
+    Form3In1: { pengajuan_id: 'id foreign:pengajuans', nama_lengkap_pemohon: string, desa: string, alamat_lengkap: text, nama_anak: string, tanggal_lahir_anak: date, file_sk_lahir: string, file_kk: string, file_ktp_ortu: string, file_surat_nikah: string, file_foto_anak: string }
+    FormKkPenambahan: { pengajuan_id: 'id foreign:pengajuans', nama_kepala_keluarga: string, nomor_kk: string, alamat: text, nama_dusun: string, rt: string, rw: string, nama_ketua_rt: string, nama_ketua_rw: string, nama_lengkap_tambahan: string, jenis_kelamin_tambahan: 'enum:L,P', tempat_lahir_tambahan: string, tanggal_lahir_tambahan: date, status_hubungan: string, kelainan_fisik_mental: string, penyandang_cacat: string, agama: string, nama_ibu_kandung: string, nik_ibu: string, nama_ayah_kandung: string, nik_ayah: string, file_kk_asli: string, file_sk_lahir_akta: string, file_ktp_suami_istri: string, file_surat_nikah: string }
+    FormKkPengurangan: { pengajuan_id: 'id foreign:pengajuans', alasan_pengurangan: text, nama_lengkap_anggota: string, alamat_lengkap_anggota: text, nik_anggota: string, file_kk_asli: string, file_ktp_asli: string, file_sk_pindah_mati: string }
+    FormKkPerbaikan: { pengajuan_id: 'id foreign:pengajuans', jenis_perbaikan_id: 'id foreign:master_jenis_perbaikan_kks', nama_kepala_keluarga: string, nomor_kk: string, nama_anggota_yang_diperbaiki: string, data_perbaikan: 'json nullable', file_pendukung: 'json nullable' }

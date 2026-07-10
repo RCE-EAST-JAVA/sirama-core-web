@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class FormKia extends Model
+{
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'pengajuan_id',
+        'nama_lengkap',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'jenis_kelamin',
+        'nama_kepala_keluarga',
+        'agama',
+        'kewarganegaraan',
+        'file_akta_kelahiran',
+        'file_kk',
+        'file_surat_nikah',
+        'file_foto_anak',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'id' => 'integer',
+            'pengajuan_id' => 'integer',
+            'tanggal_lahir' => 'date',
+        ];
+    }
+
+    public function pengajuan(): BelongsTo
+    {
+        return $this->belongsTo(Pengajuan::class);
+    }
+}
