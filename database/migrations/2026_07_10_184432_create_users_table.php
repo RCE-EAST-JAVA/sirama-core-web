@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('no_whatsapp');
             $table->string('password');
-            $table->enum('role', ["warga","admin_desa","admin_kecamatan"])->default('warga');
-            $table->string('rememberToken');
+            $table->enum('role', ["warga","admin_desa","admin_kecamatan","admin_aplikasi"])->default('warga');
+            $table->string('desa')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
     }

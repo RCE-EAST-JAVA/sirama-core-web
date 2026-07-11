@@ -10,11 +10,6 @@ class Form3In1 extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'pengajuan_id',
         'nama_lengkap_pemohon',
@@ -29,16 +24,11 @@ class Form3In1 extends Model
         'file_foto_anak',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'id' => 'integer',
-            'pengajuan_id' => 'integer',
+            'id'                 => 'integer',
+            'pengajuan_id'       => 'integer',
             'tanggal_lahir_anak' => 'date',
         ];
     }
@@ -47,4 +37,21 @@ class Form3In1 extends Model
     {
         return $this->belongsTo(Pengajuan::class);
     }
+
+    public function getFileDokumen(): array
+    {
+        return [
+            'file_sk_lahir'   => 'Surat Keterangan Lahir',
+            'file_kk'         => 'Kartu Keluarga',
+            'file_ktp_ortu'   => 'KTP Orang Tua',
+            'file_surat_nikah'=> 'Surat/Buku Nikah',
+            'file_foto_anak'  => 'Foto Anak',
+        ];
+    }
+
+    public function getFileOcrTarget(): array
+    {
+        return ['file_sk_lahir', 'file_kk', 'file_ktp_ortu', 'file_surat_nikah'];
+    }
 }
+

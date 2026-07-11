@@ -10,11 +10,6 @@ class FormKia extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'pengajuan_id',
         'nama_lengkap',
@@ -30,16 +25,11 @@ class FormKia extends Model
         'file_foto_anak',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'id' => 'integer',
-            'pengajuan_id' => 'integer',
+            'id'            => 'integer',
+            'pengajuan_id'  => 'integer',
             'tanggal_lahir' => 'date',
         ];
     }
@@ -48,4 +38,26 @@ class FormKia extends Model
     {
         return $this->belongsTo(Pengajuan::class);
     }
+
+    /**
+     * Daftar field file dokumen yang perlu OCR.
+     */
+    public function getFileDokumen(): array
+    {
+        return [
+            'file_akta_kelahiran' => 'Akta Kelahiran',
+            'file_kk'             => 'Kartu Keluarga',
+            'file_surat_nikah'    => 'Surat/Buku Nikah',
+            'file_foto_anak'      => 'Foto Anak',
+        ];
+    }
+
+    /**
+     * Field yang perlu diproses OCR (bukan foto biasa).
+     */
+    public function getFileOcrTarget(): array
+    {
+        return ['file_akta_kelahiran', 'file_kk', 'file_surat_nikah'];
+    }
 }
+

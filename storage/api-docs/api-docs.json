@@ -1,0 +1,1281 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SIRAMA API",
+        "description": "API untuk aplikasi mobile SIRAMA (Sistem Informasi Administrasi Kependudukan). Autentikasi menggunakan Laravel Sanctum Bearer Token.",
+        "contact": {
+            "email": "admin@sirama.id"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/pengajuan/{pengajuan}/form": {
+            "post": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Submit data form pengajuan",
+                "description": "Isi data form sesuai **jenis_layanan** pengajuan. Pilih schema yang sesuai:\n\n| jenis_layanan | Schema |\n|---|---|\n| `kia` | FormKia |\n| `3_in_1` | Form3In1 |\n| `kk_penambahan` | FormKkPenambahan |\n| `kk_pengurangan` | FormKkPengurangan |\n| `kk_perbaikan` | FormKkPerbaikan |\n\nSetelah form diisi, upload dokumen via `POST /pengajuan/{id}/dokumen`.",
+                "operationId": "submitForm",
+                "parameters": [
+                    {
+                        "name": "pengajuan",
+                        "in": "path",
+                        "description": "ID pengajuan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/FormKia"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/Form3In1"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/FormKkPenambahan"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/FormKkPengurangan"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/FormKkPerbaikan"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data form berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "API Server"
+                    }
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registrasi warga baru",
+                "description": "Membuat akun warga baru dengan NIK sebagai username. Mengembalikan token Sanctum untuk autentikasi selanjutnya.",
+                "operationId": "08136088c4862c313b35d6518bab8d3a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nik",
+                                    "name",
+                                    "no_whatsapp",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "nik": {
+                                        "description": "16 digit NIK",
+                                        "type": "string",
+                                        "example": "3277010101900001",
+                                        "maxLength": 16,
+                                        "minLength": 16
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Budi Santoso",
+                                        "maxLength": 255
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789",
+                                        "maxLength": 20
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password",
+                                        "minLength": 8
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrasi berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal (NIK sudah terdaftar, password tidak cocok, dll)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login warga",
+                "description": "Login menggunakan NIK dan password. Hanya akun dengan role \"warga\" yang dapat login via API mobile. Token lama akan dihapus dan diganti token baru.",
+                "operationId": "99d66635c4992aeaa6aa44ff653d0563",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nik",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "nik": {
+                                        "type": "string",
+                                        "example": "3277010101900001",
+                                        "maxLength": 16,
+                                        "minLength": 16
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Akun bukan warga (admin tidak bisa login via mobile)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "NIK atau password salah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout warga",
+                "description": "Menghapus token aktif. Setelah logout, token tidak bisa digunakan lagi.",
+                "operationId": "6abf3b64a4bc7838d56346f05a5153af",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated — token tidak valid atau tidak ada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/pengajuan": {
+            "get": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Daftar pengajuan milik warga",
+                "description": "Mengembalikan semua pengajuan milik warga yang sedang login, diurutkan terbaru. Mendukung filter berdasarkan status.",
+                "operationId": "8323ef775a6aeecb75bb1263dd42223a",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter berdasarkan status pengajuan",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "berkas_diterima",
+                                "ditolak_desa",
+                                "diverifikasi_desa",
+                                "ditolak_kecamatan",
+                                "diproses_kecamatan",
+                                "selesai"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar pengajuan dengan pagination",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PengajuanListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Buat pengajuan baru",
+                "description": "Membuat pengajuan baru dengan jenis layanan yang dipilih. Setelah ini, warga perlu mengisi form detail dan upload dokumen secara terpisah.",
+                "operationId": "fa89149bcbe3604bd0f3925316949e87",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "jenis_layanan",
+                                    "no_whatsapp"
+                                ],
+                                "properties": {
+                                    "jenis_layanan": {
+                                        "description": "Jenis layanan yang diajukan",
+                                        "type": "string",
+                                        "example": "kia",
+                                        "enum": [
+                                            "kia",
+                                            "3_in_1",
+                                            "kk_penambahan",
+                                            "kk_pengurangan",
+                                            "kk_perbaikan",
+                                            "akta_kelahiran",
+                                            "akta_kematian"
+                                        ]
+                                    },
+                                    "no_whatsapp": {
+                                        "description": "Nomor WhatsApp untuk notifikasi",
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pengajuan berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pengajuan berhasil dibuat."
+                                        },
+                                        "pengajuan": {
+                                            "$ref": "#/components/schemas/PengajuanResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/pengajuan/{pengajuan}": {
+            "get": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Detail satu pengajuan",
+                "description": "Mengembalikan detail lengkap pengajuan termasuk data form, riwayat status, dan informasi pemohon.",
+                "operationId": "ca2206a18e735813610bdc5c0aba3901",
+                "parameters": [
+                    {
+                        "name": "pengajuan",
+                        "in": "path",
+                        "description": "ID pengajuan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail pengajuan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PengajuanResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden — bukan pengajuan milik user ini"
+                    },
+                    "404": {
+                        "description": "Pengajuan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Revisi pengajuan yang ditolak",
+                "description": "Hanya bisa dilakukan jika status pengajuan adalah ditolak_desa atau ditolak_kecamatan. Status akan direset ke berkas_diterima untuk review ulang.",
+                "operationId": "2e043a10ca8d4ecc3cca05974c98bc17",
+                "parameters": [
+                    {
+                        "name": "pengajuan",
+                        "in": "path",
+                        "description": "ID pengajuan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "no_whatsapp"
+                                ],
+                                "properties": {
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pengajuan berhasil direvisi dan dikirim ulang",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pengajuan berhasil direvisi dan dikirim ulang."
+                                        },
+                                        "pengajuan": {
+                                            "$ref": "#/components/schemas/PengajuanResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Pengajuan tidak dapat direvisi (status bukan ditolak)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/pengajuan/{pengajuan}/dokumen": {
+            "post": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Upload dokumen pendukung",
+                "description": "Upload satu file dokumen per request. Nama field (`field`) berbeda sesuai jenis_layanan:\n- **kia**: file_akta_kelahiran, file_kk, file_surat_nikah, file_foto_anak\n- **3_in_1**: file_sk_lahir, file_kk, file_ktp_ortu, file_surat_nikah, file_foto_anak\n- **kk_penambahan**: file_kk_asli, file_sk_lahir_akta, file_ktp_suami_istri, file_surat_nikah\n- **kk_pengurangan**: file_kk_asli, file_ktp_asli, file_sk_pindah_mati\n- **kk_perbaikan**: file_pendukung (bisa diupload berkali-kali)",
+                "operationId": "32999cc7f90543d17002096e969c7ac9",
+                "parameters": [
+                    {
+                        "name": "pengajuan",
+                        "in": "path",
+                        "description": "ID pengajuan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "field",
+                                    "dokumen"
+                                ],
+                                "properties": {
+                                    "field": {
+                                        "description": "Nama field dokumen sesuai jenis layanan",
+                                        "type": "string",
+                                        "example": "file_kk"
+                                    },
+                                    "dokumen": {
+                                        "description": "File JPG/PNG/PDF, maks 5MB",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dokumen berhasil diupload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dokumen berhasil diupload."
+                                        },
+                                        "field": {
+                                            "type": "string",
+                                            "example": "file_kk"
+                                        },
+                                        "path": {
+                                            "type": "string",
+                                            "example": "pengajuan/1/file_kk/document.jpg"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validasi gagal atau field tidak valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/pengajuan/{pengajuan}/status": {
+            "get": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Cek status terkini pengajuan",
+                "description": "Mengembalikan status terkini beserta riwayat perubahan status pengajuan. Gunakan endpoint ini untuk polling status dari mobile app.",
+                "operationId": "386458d78e575533effbc5849dc29c3a",
+                "parameters": [
+                    {
+                        "name": "pengajuan",
+                        "in": "path",
+                        "description": "ID pengajuan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status pengajuan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "diverifikasi_desa",
+                                            "enum": [
+                                                "berkas_diterima",
+                                                "ditolak_desa",
+                                                "diverifikasi_desa",
+                                                "ditolak_kecamatan",
+                                                "diproses_kecamatan",
+                                                "selesai"
+                                            ]
+                                        },
+                                        "label_status": {
+                                            "type": "string",
+                                            "example": "Diverifikasi Desa"
+                                        },
+                                        "lokasi_dokumen": {
+                                            "description": "Path softfile jika sudah selesai",
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "riwayat_statuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/RiwayatStatusResponse"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Pengajuan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nik": {
+                        "type": "string",
+                        "example": "3277010101900001"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "no_whatsapp": {
+                        "type": "string",
+                        "example": "08123456789"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "warga"
+                    },
+                    "desa": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "AuthResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Login berhasil."
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "1|abc123xyz"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResponse"
+                    }
+                },
+                "type": "object"
+            },
+            "RiwayatStatusResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "diverifikasi_desa"
+                    },
+                    "catatan": {
+                        "type": "string",
+                        "example": "Berkas lengkap",
+                        "nullable": true
+                    },
+                    "waktu": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-01-01T08:00:00+07:00"
+                    }
+                },
+                "type": "object"
+            },
+            "PengajuanResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "jenis_layanan": {
+                        "type": "string",
+                        "example": "kia"
+                    },
+                    "label_layanan": {
+                        "type": "string",
+                        "example": "KIA (Kartu Identitas Anak)"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "berkas_diterima",
+                        "enum": [
+                            "berkas_diterima",
+                            "ditolak_desa",
+                            "diverifikasi_desa",
+                            "ditolak_kecamatan",
+                            "diproses_kecamatan",
+                            "selesai"
+                        ]
+                    },
+                    "label_status": {
+                        "type": "string",
+                        "example": "Berkas Diterima"
+                    },
+                    "no_whatsapp": {
+                        "type": "string",
+                        "example": "08123456789"
+                    },
+                    "lokasi_dokumen": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResponse"
+                    },
+                    "riwayat_statuses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RiwayatStatusResponse"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "PengajuanListResponse": {
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PengajuanResponse"
+                        }
+                    },
+                    "meta": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "last_page": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "total": {
+                                "type": "integer",
+                                "example": 25
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationErrorResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The nik field is required."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "nik": [
+                                "NIK wajib diisi."
+                            ],
+                            "password": [
+                                "Password wajib diisi."
+                            ]
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "MessageResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Operasi berhasil."
+                    }
+                },
+                "type": "object"
+            },
+            "FormKia": {
+                "description": "Form untuk jenis layanan: kia",
+                "required": [
+                    "nama_lengkap",
+                    "tempat_lahir",
+                    "tanggal_lahir",
+                    "jenis_kelamin",
+                    "nama_kepala_keluarga",
+                    "agama",
+                    "kewarganegaraan"
+                ],
+                "properties": {
+                    "nama_lengkap": {
+                        "type": "string",
+                        "example": "Anak Budi"
+                    },
+                    "tempat_lahir": {
+                        "type": "string",
+                        "example": "Bandung"
+                    },
+                    "tanggal_lahir": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2020-01-15"
+                    },
+                    "jenis_kelamin": {
+                        "type": "string",
+                        "example": "L",
+                        "enum": [
+                            "L",
+                            "P"
+                        ]
+                    },
+                    "nama_kepala_keluarga": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "agama": {
+                        "type": "string",
+                        "example": "Islam"
+                    },
+                    "kewarganegaraan": {
+                        "type": "string",
+                        "example": "WNI"
+                    }
+                },
+                "type": "object"
+            },
+            "Form3In1": {
+                "description": "Form untuk jenis layanan: 3_in_1 (Akta + KK + KIA)",
+                "required": [
+                    "nama_lengkap_pemohon",
+                    "desa",
+                    "alamat_lengkap",
+                    "nama_anak",
+                    "tanggal_lahir_anak"
+                ],
+                "properties": {
+                    "nama_lengkap_pemohon": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "desa": {
+                        "type": "string",
+                        "example": "Cibabat"
+                    },
+                    "alamat_lengkap": {
+                        "type": "string",
+                        "example": "Jl. Merdeka No. 1"
+                    },
+                    "nama_anak": {
+                        "type": "string",
+                        "example": "Anak Budi"
+                    },
+                    "tanggal_lahir_anak": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-01-01"
+                    }
+                },
+                "type": "object"
+            },
+            "FormKkPenambahan": {
+                "description": "Form untuk jenis layanan: kk_penambahan",
+                "required": [
+                    "nama_kepala_keluarga",
+                    "nomor_kk",
+                    "alamat",
+                    "rt",
+                    "rw",
+                    "nama_lengkap_tambahan",
+                    "jenis_kelamin_tambahan",
+                    "tempat_lahir_tambahan",
+                    "tanggal_lahir_tambahan",
+                    "status_hubungan",
+                    "agama",
+                    "nama_ibu_kandung",
+                    "nik_ibu",
+                    "nama_ayah_kandung",
+                    "nik_ayah"
+                ],
+                "properties": {
+                    "nama_kepala_keluarga": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "nomor_kk": {
+                        "type": "string",
+                        "example": "3277011234567890"
+                    },
+                    "alamat": {
+                        "type": "string",
+                        "example": "Jl. Merdeka No. 1"
+                    },
+                    "nama_dusun": {
+                        "type": "string",
+                        "example": "Dusun Mawar",
+                        "nullable": true
+                    },
+                    "rt": {
+                        "type": "string",
+                        "example": "001"
+                    },
+                    "rw": {
+                        "type": "string",
+                        "example": "002"
+                    },
+                    "nama_ketua_rt": {
+                        "type": "string",
+                        "example": "Ahmad",
+                        "nullable": true
+                    },
+                    "nama_ketua_rw": {
+                        "type": "string",
+                        "example": "Hasan",
+                        "nullable": true
+                    },
+                    "nama_lengkap_tambahan": {
+                        "type": "string",
+                        "example": "Anak Budi"
+                    },
+                    "jenis_kelamin_tambahan": {
+                        "type": "string",
+                        "example": "L",
+                        "enum": [
+                            "L",
+                            "P"
+                        ]
+                    },
+                    "tempat_lahir_tambahan": {
+                        "type": "string",
+                        "example": "Bandung"
+                    },
+                    "tanggal_lahir_tambahan": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2020-01-01"
+                    },
+                    "status_hubungan": {
+                        "type": "string",
+                        "example": "Anak"
+                    },
+                    "kelainan_fisik_mental": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "penyandang_cacat": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "agama": {
+                        "type": "string",
+                        "example": "Islam"
+                    },
+                    "nama_ibu_kandung": {
+                        "type": "string",
+                        "example": "Siti Aminah"
+                    },
+                    "nik_ibu": {
+                        "type": "string",
+                        "example": "3277010101900002"
+                    },
+                    "nama_ayah_kandung": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "nik_ayah": {
+                        "type": "string",
+                        "example": "3277010101900001"
+                    }
+                },
+                "type": "object"
+            },
+            "FormKkPengurangan": {
+                "description": "Form untuk jenis layanan: kk_pengurangan",
+                "required": [
+                    "alasan_pengurangan",
+                    "nama_lengkap_anggota",
+                    "alamat_lengkap_anggota",
+                    "nik_anggota"
+                ],
+                "properties": {
+                    "alasan_pengurangan": {
+                        "type": "string",
+                        "example": "Pindah domisili ke luar kota"
+                    },
+                    "nama_lengkap_anggota": {
+                        "type": "string",
+                        "example": "Anak Budi"
+                    },
+                    "alamat_lengkap_anggota": {
+                        "type": "string",
+                        "example": "Jl. Merdeka No. 1, Bandung"
+                    },
+                    "nik_anggota": {
+                        "type": "string",
+                        "example": "3277010101900003"
+                    }
+                },
+                "type": "object"
+            },
+            "FormKkPerbaikan": {
+                "description": "Form untuk jenis layanan: kk_perbaikan",
+                "required": [
+                    "jenis_perbaikan_id",
+                    "nama_kepala_keluarga",
+                    "nomor_kk",
+                    "nama_anggota_yang_diperbaiki",
+                    "data_perbaikan"
+                ],
+                "properties": {
+                    "jenis_perbaikan_id": {
+                        "description": "ID dari master_jenis_perbaikan_kks",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nama_kepala_keluarga": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "nomor_kk": {
+                        "type": "string",
+                        "example": "3277011234567890"
+                    },
+                    "nama_anggota_yang_diperbaiki": {
+                        "type": "string",
+                        "example": "Anak Budi"
+                    },
+                    "data_perbaikan": {
+                        "description": "Key-value data yang perlu diperbaiki",
+                        "type": "object",
+                        "example": {
+                            "nama_lama": "Anakk Budi",
+                            "nama_baru": "Anak Budi"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "UploadDokumenKia": {
+                "description": "Field dokumen untuk jenis layanan kia",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "example": "file_kk",
+                        "enum": [
+                            "file_akta_kelahiran",
+                            "file_kk",
+                            "file_surat_nikah",
+                            "file_foto_anak"
+                        ]
+                    },
+                    "dokumen": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            },
+            "UploadDokumen3In1": {
+                "description": "Field dokumen untuk jenis layanan 3_in_1",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "example": "file_sk_lahir",
+                        "enum": [
+                            "file_sk_lahir",
+                            "file_kk",
+                            "file_ktp_ortu",
+                            "file_surat_nikah",
+                            "file_foto_anak"
+                        ]
+                    },
+                    "dokumen": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            },
+            "UploadDokumenKkPenambahan": {
+                "description": "Field dokumen untuk jenis layanan kk_penambahan",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "example": "file_kk_asli",
+                        "enum": [
+                            "file_kk_asli",
+                            "file_sk_lahir_akta",
+                            "file_ktp_suami_istri",
+                            "file_surat_nikah"
+                        ]
+                    },
+                    "dokumen": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            },
+            "UploadDokumenKkPengurangan": {
+                "description": "Field dokumen untuk jenis layanan kk_pengurangan",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "example": "file_kk_asli",
+                        "enum": [
+                            "file_kk_asli",
+                            "file_ktp_asli",
+                            "file_sk_pindah_mati"
+                        ]
+                    },
+                    "dokumen": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            },
+            "UploadDokumenKkPerbaikan": {
+                "description": "Field dokumen untuk jenis layanan kk_perbaikan (bisa multiple)",
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "example": "file_pendukung",
+                        "enum": [
+                            "file_pendukung"
+                        ]
+                    },
+                    "dokumen": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Masukkan token Sanctum. Contoh: Bearer {token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Autentikasi warga"
+        },
+        {
+            "name": "Pengajuan",
+            "description": "Manajemen pengajuan layanan kependudukan"
+        }
+    ]
+}

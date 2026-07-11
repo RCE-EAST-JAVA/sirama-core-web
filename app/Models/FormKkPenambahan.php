@@ -10,11 +10,6 @@ class FormKkPenambahan extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'pengajuan_id',
         'nama_kepala_keluarga',
@@ -43,16 +38,11 @@ class FormKkPenambahan extends Model
         'file_surat_nikah',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'id' => 'integer',
-            'pengajuan_id' => 'integer',
+            'id'                     => 'integer',
+            'pengajuan_id'           => 'integer',
             'tanggal_lahir_tambahan' => 'date',
         ];
     }
@@ -61,4 +51,20 @@ class FormKkPenambahan extends Model
     {
         return $this->belongsTo(Pengajuan::class);
     }
+
+    public function getFileDokumen(): array
+    {
+        return [
+            'file_kk_asli'        => 'KK Asli',
+            'file_sk_lahir_akta'  => 'Surat Keterangan Lahir / Akta',
+            'file_ktp_suami_istri'=> 'KTP Suami/Istri',
+            'file_surat_nikah'    => 'Surat/Buku Nikah',
+        ];
+    }
+
+    public function getFileOcrTarget(): array
+    {
+        return ['file_kk_asli', 'file_sk_lahir_akta', 'file_ktp_suami_istri', 'file_surat_nikah'];
+    }
 }
+
