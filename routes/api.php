@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\Pengajuan\Tiga1PengajuanController;
 use App\Http\Controllers\Api\Pengajuan\KkPenambahanPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\KkPenguranganPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\KkPerbaikanPengajuanController;
+use App\Http\Controllers\Api\Pengajuan\AktaLahirPengajuanController;
+use App\Http\Controllers\Api\Pengajuan\AktaKematianPengajuanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,4 +54,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // KK Perbaikan
     Route::post('/pengajuan/kk-perbaikan',                [KkPerbaikanPengajuanController::class, 'store']);
     Route::post('/pengajuan/kk-perbaikan/{pengajuan}',     [KkPerbaikanPengajuanController::class, 'update']);
+
+    // Akta Lahir
+    Route::post('/pengajuan/akta-lahir',               [AktaLahirPengajuanController::class, 'store']);
+    Route::post('/pengajuan/akta-lahir/{pengajuan}',    [AktaLahirPengajuanController::class, 'update']);
+
+    // Akta Kematian
+    Route::post('/pengajuan/akta-kematian',              [AktaKematianPengajuanController::class, 'store']);
+    Route::post('/pengajuan/akta-kematian/{pengajuan}',   [AktaKematianPengajuanController::class, 'update']);
 });

@@ -80,6 +80,16 @@ class Pengajuan extends Model
         return $this->hasOne(FormKkPerbaikan::class);
     }
 
+    public function formAktaLahir(): HasOne
+    {
+        return $this->hasOne(FormAktaLahir::class);
+    }
+
+    public function formAktaKematian(): HasOne
+    {
+        return $this->hasOne(FormAktaKematian::class);
+    }
+
     // --- Helpers ---
 
     public function getFormDetail(): ?Model
@@ -90,6 +100,8 @@ class Pengajuan extends Model
             'kk_penambahan'  => $this->formKkPenambahan,
             'kk_pengurangan' => $this->formKkPengurangan,
             'kk_perbaikan'   => $this->formKkPerbaikan,
+            'akta_kelahiran' => $this->formAktaLahir,
+            'akta_kematian'  => $this->formAktaKematian,
             default          => null,
         };
     }
