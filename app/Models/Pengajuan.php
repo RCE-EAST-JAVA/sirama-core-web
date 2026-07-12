@@ -18,13 +18,23 @@ class Pengajuan extends Model
         'status',
         'lokasi_dokumen',
         'no_whatsapp',
+        'nama_lengkap',
+        'nik',
+        'tanggal_lahir',
+        'jenis_kelamin',
+        'pekerjaan',
+        'alamat',
+        'desa',
+        'rt',
+        'rw',
     ];
 
     protected function casts(): array
     {
         return [
-            'id'      => 'integer',
-            'user_id' => 'integer',
+            'id'            => 'integer',
+            'user_id'       => 'integer',
+            'tanggal_lahir' => 'date',
         ];
     }
 

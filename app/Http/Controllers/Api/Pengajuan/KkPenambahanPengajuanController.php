@@ -25,21 +25,28 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     required: [
-                        'no_whatsapp', 'nama_kepala_keluarga', 'nomor_kk', 'alamat', 'nama_dusun',
-                        'rt', 'rw', 'nama_ketua_rt', 'nama_ketua_rw', 'nama_lengkap_tambahan',
-                        'jenis_kelamin_tambahan', 'tempat_lahir_tambahan', 'tanggal_lahir_tambahan',
-                        'status_hubungan', 'kelainan_fisik_mental', 'penyandang_cacat', 'agama',
-                        'nama_ibu_kandung', 'nik_ibu', 'nama_ayah_kandung', 'nik_ayah',
+                        'nama_lengkap', 'nik', 'no_whatsapp', 'tanggal_lahir', 'jenis_kelamin',
+                        'alamat', 'desa', 'rt', 'rw',
+                        'nama_kepala_keluarga', 'nomor_kk', 'nama_ketua_rt', 'nama_ketua_rw',
+                        'nama_lengkap_tambahan', 'jenis_kelamin_tambahan', 'tempat_lahir_tambahan',
+                        'tanggal_lahir_tambahan', 'status_hubungan', 'kelainan_fisik_mental',
+                        'penyandang_cacat', 'agama', 'nama_ibu_kandung', 'nik_ibu',
+                        'nama_ayah_kandung', 'nik_ayah',
                         'file_kk_asli', 'file_sk_lahir_akta', 'file_ktp_suami_istri', 'file_surat_nikah',
                     ],
                     properties: [
+                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Budi Santoso'),
+                        new OA\Property(property: 'nik', type: 'string', example: '3277010101900001'),
                         new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
-                        new OA\Property(property: 'nama_kepala_keluarga', type: 'string'),
-                        new OA\Property(property: 'nomor_kk', type: 'string'),
+                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '1990-01-01'),
+                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
+                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true),
                         new OA\Property(property: 'alamat', type: 'string'),
-                        new OA\Property(property: 'nama_dusun', type: 'string'),
+                        new OA\Property(property: 'desa', type: 'string'),
                         new OA\Property(property: 'rt', type: 'string'),
                         new OA\Property(property: 'rw', type: 'string'),
+                        new OA\Property(property: 'nama_kepala_keluarga', type: 'string'),
+                        new OA\Property(property: 'nomor_kk', type: 'string'),
                         new OA\Property(property: 'nama_ketua_rt', type: 'string'),
                         new OA\Property(property: 'nama_ketua_rw', type: 'string'),
                         new OA\Property(property: 'nama_lengkap_tambahan', type: 'string'),
@@ -75,6 +82,15 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                 'user_id'       => Auth::id(),
                 'jenis_layanan' => 'kk_penambahan',
                 'no_whatsapp'   => $request->no_whatsapp,
+                'nama_lengkap'  => $request->nama_lengkap,
+                'nik'           => $request->nik,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'pekerjaan'     => $request->pekerjaan,
+                'alamat'        => $request->alamat,
+                'desa'          => $request->desa,
+                'rt'            => $request->rt,
+                'rw'            => $request->rw,
                 'status'        => 'berkas_diterima',
             ]);
 
@@ -82,10 +98,6 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                 'pengajuan_id'           => $pengajuan->id,
                 'nama_kepala_keluarga'   => $request->nama_kepala_keluarga,
                 'nomor_kk'               => $request->nomor_kk,
-                'alamat'                 => $request->alamat,
-                'nama_dusun'             => $request->nama_dusun,
-                'rt'                     => $request->rt,
-                'rw'                     => $request->rw,
                 'nama_ketua_rt'          => $request->nama_ketua_rt,
                 'nama_ketua_rw'          => $request->nama_ketua_rw,
                 'nama_lengkap_tambahan'  => $request->nama_lengkap_tambahan,
@@ -134,10 +146,21 @@ class KkPenambahanPengajuanController extends BasePengajuanController
         $this->authorizeWarga($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
-            $pengajuan->update(['no_whatsapp' => $request->no_whatsapp]);
+            $pengajuan->update([
+                'no_whatsapp'   => $request->no_whatsapp,
+                'nama_lengkap'  => $request->nama_lengkap,
+                'nik'           => $request->nik,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'pekerjaan'     => $request->pekerjaan,
+                'alamat'        => $request->alamat,
+                'desa'          => $request->desa,
+                'rt'            => $request->rt,
+                'rw'            => $request->rw,
+            ]);
 
             $formData = $request->only([
-                'nama_kepala_keluarga', 'nomor_kk', 'alamat', 'nama_dusun', 'rt', 'rw',
+                'nama_kepala_keluarga', 'nomor_kk',
                 'nama_ketua_rt', 'nama_ketua_rw', 'nama_lengkap_tambahan', 'jenis_kelamin_tambahan',
                 'tempat_lahir_tambahan', 'tanggal_lahir_tambahan', 'status_hubungan',
                 'kelainan_fisik_mental', 'penyandang_cacat', 'agama', 'nama_ibu_kandung',

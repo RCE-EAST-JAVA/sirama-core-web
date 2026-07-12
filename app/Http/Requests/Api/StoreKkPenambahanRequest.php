@@ -13,55 +13,71 @@ class StoreKkPenambahanRequest extends FormRequest
 
     public function rules(): array
     {
+        $required = $this->isMethod('POST') ? 'required' : 'nullable';
         $fileRules = $this->isMethod('POST')
             ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120']
             : ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
 
         return [
-            'no_whatsapp'              => ['required', 'string', 'max:20'],
-            'nama_kepala_keluarga'     => ['required', 'string', 'max:255'],
-            'nomor_kk'                 => ['required', 'string', 'max:20'],
-            'alamat'                   => ['required', 'string', 'max:500'],
-            'nama_dusun'               => ['required', 'string', 'max:255'],
-            'rt'                       => ['required', 'string', 'max:10'],
-            'rw'                       => ['required', 'string', 'max:10'],
-            'nama_ketua_rt'            => ['required', 'string', 'max:255'],
-            'nama_ketua_rw'            => ['required', 'string', 'max:255'],
-            'nama_lengkap_tambahan'    => ['required', 'string', 'max:255'],
-            'jenis_kelamin_tambahan'   => ['required', 'in:L,P'],
-            'tempat_lahir_tambahan'    => ['required', 'string', 'max:255'],
-            'tanggal_lahir_tambahan'   => ['required', 'date'],
-            'status_hubungan'          => ['required', 'string', 'max:100'],
-            'kelainan_fisik_mental'    => ['required', 'string', 'max:255'],
-            'penyandang_cacat'         => ['required', 'string', 'max:255'],
-            'agama'                    => ['required', 'string', 'max:50'],
-            'nama_ibu_kandung'         => ['required', 'string', 'max:255'],
-            'nik_ibu'                  => ['required', 'string', 'digits:16'],
-            'nama_ayah_kandung'        => ['required', 'string', 'max:255'],
-            'nik_ayah'                 => ['required', 'string', 'digits:16'],
+            // Data diri pemohon — disimpan ke tabel pengajuans
+            'nama_lengkap'   => [$required, 'string', 'max:255'],
+            'nik'            => [$required, 'string', 'digits:16'],
+            'no_whatsapp'    => [$required, 'string', 'max:20'],
+            'tanggal_lahir'  => [$required, 'date'],
+            'jenis_kelamin'  => [$required, 'in:L,P'],
+            'pekerjaan'      => ['nullable', 'string', 'max:255'],
+            'alamat'         => [$required, 'string', 'max:500'],
+            'desa'           => [$required, 'string', 'max:255'],
+            'rt'             => [$required, 'string', 'max:10'],
+            'rw'             => [$required, 'string', 'max:10'],
 
-            'file_kk_asli'             => $fileRules,
-            'file_sk_lahir_akta'       => $fileRules,
-            'file_ktp_suami_istri'     => $fileRules,
-            'file_surat_nikah'         => $fileRules,
+            // Data spesifik KK Penambahan — disimpan ke tabel form_kk_penambahans
+            'nama_kepala_keluarga'   => [$required, 'string', 'max:255'],
+            'nomor_kk'               => [$required, 'string', 'max:20'],
+            'nama_ketua_rt'          => [$required, 'string', 'max:255'],
+            'nama_ketua_rw'          => [$required, 'string', 'max:255'],
+            'nama_lengkap_tambahan'  => [$required, 'string', 'max:255'],
+            'jenis_kelamin_tambahan' => [$required, 'in:L,P'],
+            'tempat_lahir_tambahan'  => [$required, 'string', 'max:255'],
+            'tanggal_lahir_tambahan' => [$required, 'date'],
+            'status_hubungan'        => [$required, 'string', 'max:100'],
+            'kelainan_fisik_mental'  => [$required, 'string', 'max:255'],
+            'penyandang_cacat'       => [$required, 'string', 'max:255'],
+            'agama'                  => [$required, 'string', 'max:50'],
+            'nama_ibu_kandung'       => [$required, 'string', 'max:255'],
+            'nik_ibu'                => [$required, 'string', 'digits:16'],
+            'nama_ayah_kandung'      => [$required, 'string', 'max:255'],
+            'nik_ayah'               => [$required, 'string', 'digits:16'],
+
+            'file_kk_asli'           => $fileRules,
+            'file_sk_lahir_akta'     => $fileRules,
+            'file_ktp_suami_istri'   => $fileRules,
+            'file_surat_nikah'       => $fileRules,
         ];
     }
 
     public function messages(): array
     {
         return [
+            'nama_lengkap.required'           => 'Nama lengkap wajib diisi.',
+            'nik.required'                    => 'NIK wajib diisi.',
+            'nik.digits'                      => 'NIK harus 16 digit.',
             'no_whatsapp.required'            => 'Nomor WhatsApp wajib diisi.',
-            'nama_kepala_keluarga.required'   => 'Nama kepala keluarga wajib diisi.',
-            'nomor_kk.required'               => 'Nomor KK wajib diisi.',
+            'tanggal_lahir.required'          => 'Tanggal lahir wajib diisi.',
+            'jenis_kelamin.required'          => 'Jenis kelamin wajib dipilih.',
+            'jenis_kelamin.in'                => 'Jenis kelamin harus L atau P.',
             'alamat.required'                 => 'Alamat wajib diisi.',
-            'nama_dusun.required'             => 'Nama dusun wajib diisi.',
+            'desa.required'                   => 'Desa/Kelurahan wajib diisi.',
             'rt.required'                     => 'RT wajib diisi.',
             'rw.required'                     => 'RW wajib diisi.',
+
+            'nama_kepala_keluarga.required'   => 'Nama kepala keluarga wajib diisi.',
+            'nomor_kk.required'               => 'Nomor KK wajib diisi.',
             'nama_ketua_rt.required'          => 'Nama ketua RT wajib diisi.',
             'nama_ketua_rw.required'          => 'Nama ketua RW wajib diisi.',
             'nama_lengkap_tambahan.required'  => 'Nama lengkap anggota tambahan wajib diisi.',
             'jenis_kelamin_tambahan.required' => 'Jenis kelamin anggota tambahan wajib dipilih.',
-            'jenis_kelamin_tambahan.in'       => 'Jenis kelamin harus L atau P.',
+            'jenis_kelamin_tambahan.in'       => 'Jenis kelamin anggota harus L atau P.',
             'tempat_lahir_tambahan.required'  => 'Tempat lahir anggota tambahan wajib diisi.',
             'tanggal_lahir_tambahan.required' => 'Tanggal lahir anggota tambahan wajib diisi.',
             'status_hubungan.required'        => 'Status hubungan wajib diisi.',

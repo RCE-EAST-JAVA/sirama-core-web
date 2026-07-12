@@ -354,11 +354,16 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "no_whatsapp",
                                     "nama_lengkap",
-                                    "tempat_lahir",
+                                    "nik",
+                                    "no_whatsapp",
                                     "tanggal_lahir",
                                     "jenis_kelamin",
+                                    "alamat",
+                                    "desa",
+                                    "rt",
+                                    "rw",
+                                    "tempat_lahir",
                                     "nama_kepala_keluarga",
                                     "agama",
                                     "kewarganegaraan",
@@ -368,22 +373,22 @@
                                     "file_foto_anak"
                                 ],
                                 "properties": {
-                                    "no_whatsapp": {
-                                        "type": "string",
-                                        "example": "08123456789"
-                                    },
                                     "nama_lengkap": {
                                         "type": "string",
                                         "example": "Budi Santoso"
                                     },
-                                    "tempat_lahir": {
+                                    "nik": {
                                         "type": "string",
-                                        "example": "Bandung"
+                                        "example": "3277010101900001"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
                                     },
                                     "tanggal_lahir": {
                                         "type": "string",
                                         "format": "date",
-                                        "example": "2020-01-15"
+                                        "example": "1990-01-01"
                                     },
                                     "jenis_kelamin": {
                                         "type": "string",
@@ -391,6 +396,31 @@
                                             "L",
                                             "P"
                                         ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "example": "Wiraswasta",
+                                        "nullable": true
+                                    },
+                                    "alamat": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 1"
+                                    },
+                                    "desa": {
+                                        "type": "string",
+                                        "example": "Desa Sukamaju"
+                                    },
+                                    "rt": {
+                                        "type": "string",
+                                        "example": "001"
+                                    },
+                                    "rw": {
+                                        "type": "string",
+                                        "example": "002"
+                                    },
+                                    "tempat_lahir": {
+                                        "type": "string",
+                                        "example": "Bandung"
                                     },
                                     "nama_kepala_keluarga": {
                                         "type": "string",
@@ -491,13 +521,13 @@
                         "multipart/form-data": {
                             "schema": {
                                 "properties": {
-                                    "no_whatsapp": {
-                                        "type": "string"
-                                    },
                                     "nama_lengkap": {
                                         "type": "string"
                                     },
-                                    "tempat_lahir": {
+                                    "nik": {
+                                        "type": "string"
+                                    },
+                                    "no_whatsapp": {
                                         "type": "string"
                                     },
                                     "tanggal_lahir": {
@@ -510,6 +540,25 @@
                                             "L",
                                             "P"
                                         ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "alamat": {
+                                        "type": "string"
+                                    },
+                                    "desa": {
+                                        "type": "string"
+                                    },
+                                    "rt": {
+                                        "type": "string"
+                                    },
+                                    "rw": {
+                                        "type": "string"
+                                    },
+                                    "tempat_lahir": {
+                                        "type": "string"
                                     },
                                     "nama_kepala_keluarga": {
                                         "type": "string"
@@ -577,13 +626,17 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "nama_lengkap",
+                                    "nik",
                                     "no_whatsapp",
-                                    "nama_kepala_keluarga",
-                                    "nomor_kk",
+                                    "tanggal_lahir",
+                                    "jenis_kelamin",
                                     "alamat",
-                                    "nama_dusun",
+                                    "desa",
                                     "rt",
                                     "rw",
+                                    "nama_kepala_keluarga",
+                                    "nomor_kk",
                                     "nama_ketua_rt",
                                     "nama_ketua_rw",
                                     "nama_lengkap_tambahan",
@@ -604,26 +657,50 @@
                                     "file_surat_nikah"
                                 ],
                                 "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "nik": {
+                                        "type": "string",
+                                        "example": "3277010101900001"
+                                    },
                                     "no_whatsapp": {
                                         "type": "string",
                                         "example": "08123456789"
                                     },
-                                    "nama_kepala_keluarga": {
-                                        "type": "string"
+                                    "tanggal_lahir": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01"
                                     },
-                                    "nomor_kk": {
-                                        "type": "string"
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "L",
+                                            "P"
+                                        ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "nullable": true
                                     },
                                     "alamat": {
                                         "type": "string"
                                     },
-                                    "nama_dusun": {
+                                    "desa": {
                                         "type": "string"
                                     },
                                     "rt": {
                                         "type": "string"
                                     },
                                     "rw": {
+                                        "type": "string"
+                                    },
+                                    "nama_kepala_keluarga": {
+                                        "type": "string"
+                                    },
+                                    "nomor_kk": {
                                         "type": "string"
                                     },
                                     "nama_ketua_rt": {
@@ -766,7 +843,15 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "nama_lengkap",
+                                    "nik",
                                     "no_whatsapp",
+                                    "tanggal_lahir",
+                                    "jenis_kelamin",
+                                    "alamat",
+                                    "desa",
+                                    "rt",
+                                    "rw",
                                     "alasan_pengurangan",
                                     "nama_lengkap_anggota",
                                     "alamat_lengkap_anggota",
@@ -776,9 +861,50 @@
                                     "file_sk_pindah_mati"
                                 ],
                                 "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "nik": {
+                                        "type": "string",
+                                        "example": "3277010101900001"
+                                    },
                                     "no_whatsapp": {
                                         "type": "string",
                                         "example": "08123456789"
+                                    },
+                                    "tanggal_lahir": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01"
+                                    },
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "L",
+                                            "P"
+                                        ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "example": "Wiraswasta",
+                                        "nullable": true
+                                    },
+                                    "alamat": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 1"
+                                    },
+                                    "desa": {
+                                        "type": "string",
+                                        "example": "Desa Sukamaju"
+                                    },
+                                    "rt": {
+                                        "type": "string",
+                                        "example": "001"
+                                    },
+                                    "rw": {
+                                        "type": "string",
+                                        "example": "002"
                                     },
                                     "alasan_pengurangan": {
                                         "type": "string"
@@ -882,7 +1008,15 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "nama_lengkap",
+                                    "nik",
                                     "no_whatsapp",
+                                    "tanggal_lahir",
+                                    "jenis_kelamin",
+                                    "alamat",
+                                    "desa",
+                                    "rt",
+                                    "rw",
                                     "jenis_perbaikan_id",
                                     "nama_kepala_keluarga",
                                     "nomor_kk",
@@ -891,9 +1025,50 @@
                                     "file_pendukung"
                                 ],
                                 "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "nik": {
+                                        "type": "string",
+                                        "example": "3277010101900001"
+                                    },
                                     "no_whatsapp": {
                                         "type": "string",
                                         "example": "08123456789"
+                                    },
+                                    "tanggal_lahir": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01"
+                                    },
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "L",
+                                            "P"
+                                        ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "example": "Wiraswasta",
+                                        "nullable": true
+                                    },
+                                    "alamat": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 1"
+                                    },
+                                    "desa": {
+                                        "type": "string",
+                                        "example": "Desa Sukamaju"
+                                    },
+                                    "rt": {
+                                        "type": "string",
+                                        "example": "001"
+                                    },
+                                    "rw": {
+                                        "type": "string",
+                                        "example": "002"
                                     },
                                     "jenis_perbaikan_id": {
                                         "type": "integer",
@@ -1003,10 +1178,15 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "nama_lengkap",
+                                    "nik",
                                     "no_whatsapp",
-                                    "nama_lengkap_pemohon",
+                                    "tanggal_lahir",
+                                    "jenis_kelamin",
+                                    "alamat",
                                     "desa",
-                                    "alamat_lengkap",
+                                    "rt",
+                                    "rw",
                                     "nama_anak",
                                     "tanggal_lahir_anak",
                                     "file_sk_lahir",
@@ -1016,21 +1196,50 @@
                                     "file_foto_anak"
                                 ],
                                 "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Andi Prasetyo"
+                                    },
+                                    "nik": {
+                                        "type": "string",
+                                        "example": "3277010101900001"
+                                    },
                                     "no_whatsapp": {
                                         "type": "string",
                                         "example": "08123456789"
                                     },
-                                    "nama_lengkap_pemohon": {
+                                    "tanggal_lahir": {
                                         "type": "string",
-                                        "example": "Andi Prasetyo"
+                                        "format": "date",
+                                        "example": "1990-01-01"
+                                    },
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "L",
+                                            "P"
+                                        ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "example": "Guru",
+                                        "nullable": true
+                                    },
+                                    "alamat": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 1"
                                     },
                                     "desa": {
                                         "type": "string",
                                         "example": "Desa Sukamaju"
                                     },
-                                    "alamat_lengkap": {
+                                    "rt": {
                                         "type": "string",
-                                        "example": "Jl. Merdeka No. 1"
+                                        "example": "001"
+                                    },
+                                    "rw": {
+                                        "type": "string",
+                                        "example": "002"
                                     },
                                     "nama_anak": {
                                         "type": "string",
@@ -1132,16 +1341,40 @@
                         "multipart/form-data": {
                             "schema": {
                                 "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string"
+                                    },
+                                    "nik": {
+                                        "type": "string"
+                                    },
                                     "no_whatsapp": {
                                         "type": "string"
                                     },
-                                    "nama_lengkap_pemohon": {
+                                    "tanggal_lahir": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "L",
+                                            "P"
+                                        ]
+                                    },
+                                    "pekerjaan": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "alamat": {
                                         "type": "string"
                                     },
                                     "desa": {
                                         "type": "string"
                                     },
-                                    "alamat_lengkap": {
+                                    "rt": {
+                                        "type": "string"
+                                    },
+                                    "rw": {
                                         "type": "string"
                                     },
                                     "nama_anak": {

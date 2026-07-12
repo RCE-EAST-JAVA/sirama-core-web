@@ -13,19 +13,29 @@ class StoreKiaRequest extends FormRequest
 
     public function rules(): array
     {
+        $required = $this->isMethod('POST') ? 'required' : 'nullable';
         $fileRules = $this->isMethod('POST')
             ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120']
             : ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
 
         return [
-            'no_whatsapp'          => ['required', 'string', 'max:20'],
-            'nama_lengkap'         => ['required', 'string', 'max:255'],
-            'tempat_lahir'         => ['required', 'string', 'max:255'],
-            'tanggal_lahir'        => ['required', 'date'],
-            'jenis_kelamin'        => ['required', 'in:L,P'],
-            'nama_kepala_keluarga' => ['required', 'string', 'max:255'],
-            'agama'                => ['required', 'string', 'max:50'],
-            'kewarganegaraan'      => ['required', 'string', 'max:50'],
+            // Data diri pemohon — disimpan ke tabel pengajuans
+            'nama_lengkap'         => [$required, 'string', 'max:255'],
+            'nik'                  => [$required, 'string', 'digits:16'],
+            'no_whatsapp'          => [$required, 'string', 'max:20'],
+            'tanggal_lahir'        => [$required, 'date'],
+            'jenis_kelamin'        => [$required, 'in:L,P'],
+            'pekerjaan'            => ['nullable', 'string', 'max:255'],
+            'alamat'               => [$required, 'string', 'max:500'],
+            'desa'                 => [$required, 'string', 'max:255'],
+            'rt'                   => [$required, 'string', 'max:10'],
+            'rw'                   => [$required, 'string', 'max:10'],
+
+            // Data spesifik KIA — disimpan ke tabel form_kias
+            'tempat_lahir'         => [$required, 'string', 'max:255'],
+            'nama_kepala_keluarga' => [$required, 'string', 'max:255'],
+            'agama'                => [$required, 'string', 'max:50'],
+            'kewarganegaraan'      => [$required, 'string', 'max:50'],
 
             'file_akta_kelahiran'  => $fileRules,
             'file_kk'              => $fileRules,
@@ -37,12 +47,19 @@ class StoreKiaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'no_whatsapp.required'          => 'Nomor WhatsApp wajib diisi.',
             'nama_lengkap.required'         => 'Nama lengkap wajib diisi.',
-            'tempat_lahir.required'         => 'Tempat lahir wajib diisi.',
+            'nik.required'                  => 'NIK wajib diisi.',
+            'nik.digits'                    => 'NIK harus 16 digit.',
+            'no_whatsapp.required'          => 'Nomor WhatsApp wajib diisi.',
             'tanggal_lahir.required'        => 'Tanggal lahir wajib diisi.',
             'jenis_kelamin.required'        => 'Jenis kelamin wajib dipilih.',
             'jenis_kelamin.in'              => 'Jenis kelamin harus L atau P.',
+            'alamat.required'               => 'Alamat wajib diisi.',
+            'desa.required'                 => 'Desa/Kelurahan wajib diisi.',
+            'rt.required'                   => 'RT wajib diisi.',
+            'rw.required'                   => 'RW wajib diisi.',
+
+            'tempat_lahir.required'         => 'Tempat lahir wajib diisi.',
             'nama_kepala_keluarga.required' => 'Nama kepala keluarga wajib diisi.',
             'agama.required'                => 'Agama wajib diisi.',
             'kewarganegaraan.required'      => 'Kewarganegaraan wajib diisi.',

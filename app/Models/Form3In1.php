@@ -12,9 +12,6 @@ class Form3In1 extends Model
 
     protected $fillable = [
         'pengajuan_id',
-        'nama_lengkap_pemohon',
-        'desa',
-        'alamat_lengkap',
         'nama_anak',
         'tanggal_lahir_anak',
         'file_sk_lahir',

@@ -24,12 +24,18 @@ class Tiga1PengajuanController extends BasePengajuanController
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
-                    required: ['no_whatsapp', 'nama_lengkap_pemohon', 'desa', 'alamat_lengkap', 'nama_anak', 'tanggal_lahir_anak', 'file_sk_lahir', 'file_kk', 'file_ktp_ortu', 'file_surat_nikah', 'file_foto_anak'],
+                    required: ['nama_lengkap', 'nik', 'no_whatsapp', 'tanggal_lahir', 'jenis_kelamin', 'alamat', 'desa', 'rt', 'rw', 'nama_anak', 'tanggal_lahir_anak', 'file_sk_lahir', 'file_kk', 'file_ktp_ortu', 'file_surat_nikah', 'file_foto_anak'],
                     properties: [
+                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Andi Prasetyo'),
+                        new OA\Property(property: 'nik', type: 'string', example: '3277010101900001'),
                         new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
-                        new OA\Property(property: 'nama_lengkap_pemohon', type: 'string', example: 'Andi Prasetyo'),
+                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '1990-01-01'),
+                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
+                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true, example: 'Guru'),
+                        new OA\Property(property: 'alamat', type: 'string', example: 'Jl. Merdeka No. 1'),
                         new OA\Property(property: 'desa', type: 'string', example: 'Desa Sukamaju'),
-                        new OA\Property(property: 'alamat_lengkap', type: 'string', example: 'Jl. Merdeka No. 1'),
+                        new OA\Property(property: 'rt', type: 'string', example: '001'),
+                        new OA\Property(property: 'rw', type: 'string', example: '002'),
                         new OA\Property(property: 'nama_anak', type: 'string', example: 'Rian Prasetyo'),
                         new OA\Property(property: 'tanggal_lahir_anak', type: 'string', format: 'date', example: '2024-03-10'),
                         new OA\Property(property: 'file_sk_lahir', type: 'string', format: 'binary'),
@@ -63,16 +69,22 @@ class Tiga1PengajuanController extends BasePengajuanController
                 'user_id'       => Auth::id(),
                 'jenis_layanan' => '3_in_1',
                 'no_whatsapp'   => $request->no_whatsapp,
+                'nama_lengkap'  => $request->nama_lengkap,
+                'nik'           => $request->nik,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'pekerjaan'     => $request->pekerjaan,
+                'alamat'        => $request->alamat,
+                'desa'          => $request->desa,
+                'rt'            => $request->rt,
+                'rw'            => $request->rw,
                 'status'        => 'berkas_diterima',
             ]);
 
             Form3In1::create([
-                'pengajuan_id'          => $pengajuan->id,
-                'nama_lengkap_pemohon'  => $request->nama_lengkap_pemohon,
-                'desa'                  => $request->desa,
-                'alamat_lengkap'        => $request->alamat_lengkap,
-                'nama_anak'             => $request->nama_anak,
-                'tanggal_lahir_anak'    => $request->tanggal_lahir_anak,
+                'pengajuan_id'       => $pengajuan->id,
+                'nama_anak'          => $request->nama_anak,
+                'tanggal_lahir_anak' => $request->tanggal_lahir_anak,
                 'file_sk_lahir'         => $this->storeFile($request->file('file_sk_lahir'), 'pengajuan/3-in-1'),
                 'file_kk'               => $this->storeFile($request->file('file_kk'), 'pengajuan/3-in-1'),
                 'file_ktp_ortu'         => $this->storeFile($request->file('file_ktp_ortu'), 'pengajuan/3-in-1'),
@@ -102,10 +114,16 @@ class Tiga1PengajuanController extends BasePengajuanController
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     properties: [
+                        new OA\Property(property: 'nama_lengkap', type: 'string'),
+                        new OA\Property(property: 'nik', type: 'string'),
                         new OA\Property(property: 'no_whatsapp', type: 'string'),
-                        new OA\Property(property: 'nama_lengkap_pemohon', type: 'string'),
+                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date'),
+                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
+                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true),
+                        new OA\Property(property: 'alamat', type: 'string'),
                         new OA\Property(property: 'desa', type: 'string'),
-                        new OA\Property(property: 'alamat_lengkap', type: 'string'),
+                        new OA\Property(property: 'rt', type: 'string'),
+                        new OA\Property(property: 'rw', type: 'string'),
                         new OA\Property(property: 'nama_anak', type: 'string'),
                         new OA\Property(property: 'tanggal_lahir_anak', type: 'string', format: 'date'),
                         new OA\Property(property: 'file_sk_lahir', type: 'string', format: 'binary'),
@@ -130,13 +148,19 @@ class Tiga1PengajuanController extends BasePengajuanController
 
         return DB::transaction(function () use ($request, $pengajuan) {
             $pengajuan->update([
-                'no_whatsapp' => $request->no_whatsapp,
+                'no_whatsapp'   => $request->no_whatsapp,
+                'nama_lengkap'  => $request->nama_lengkap,
+                'nik'           => $request->nik,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'pekerjaan'     => $request->pekerjaan,
+                'alamat'        => $request->alamat,
+                'desa'          => $request->desa,
+                'rt'            => $request->rt,
+                'rw'            => $request->rw,
             ]);
 
-            $formData = $request->only([
-                'nama_lengkap_pemohon', 'desa', 'alamat_lengkap',
-                'nama_anak', 'tanggal_lahir_anak',
-            ]);
+            $formData = $request->only(['nama_anak', 'tanggal_lahir_anak']);
 
             foreach (['file_sk_lahir', 'file_kk', 'file_ktp_ortu', 'file_surat_nikah', 'file_foto_anak'] as $field) {
                 if ($request->hasFile($field)) {
