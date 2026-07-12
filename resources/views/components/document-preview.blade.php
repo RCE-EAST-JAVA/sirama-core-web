@@ -4,18 +4,51 @@
     - $fieldName: nama field (string, misal 'file_kk')
     - $filePath: path file di storage (string)
     - $label: label tampilan (string)
+    - $pengajuanId: ID pengajuan
 --}}
-@props(['fieldName', 'filePath' => null, 'label' => 'Lihat Dokumen'])
+@props(['fieldName', 'filePath' => null, 'label' => 'Lihat Dokumen', 'pengajuanId'])
 
 @php
     if (!$filePath) return;
     $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
     $isPdf = $ext === 'pdf';
-    $modalId = 'modal-' . \Illuminate\Support\Str::slug($fieldName . '-' . basename($filePath));
+    $dataUrl = route('dokumen.data', ['pengajuan' => $pengajuanId, 'field' => $fieldName]);
+    $showUrl = route('dokumen.show', ['pengajuan' => $pengajuanId, 'field' => $fieldName]);
 @endphp
 
-<div x-data="{ open: false }" class="inline-block">
-    <button @click="open = true"
+<div
+    x-data="{
+        open: false,
+        loading: false,
+        error: null,
+        src: null,
+        isPdf: {{ $isPdf ? 'true' : 'false' }},
+        dataUrl: '{{ $dataUrl }}',
+        async load() {
+            if (this.src) return;
+            this.loading = true;
+            this.error = null;
+            try {
+                const res = await fetch(this.dataUrl, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+                if (!res.ok) throw new Error('Gagal memuat file (status ' + res.status + ')');
+                const json = await res.json();
+                this.src = json.data;
+            } catch (e) {
+                this.error = e.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+        openModal() {
+            this.open = true;
+            this.load();
+        }
+    }"
+    class="inline-block">
+
+    <button @click="openModal()"
         type="button"
         class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
         @if($isPdf)
@@ -52,7 +85,7 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
                 <h3 class="text-sm font-semibold text-gray-900">{{ $label }}</h3>
                 <div class="flex items-center gap-3">
-                    <a href="{{ Storage::url($filePath) }}"
+                    <a href="{{ $showUrl }}"
                         target="_blank"
                         class="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 transition-colors">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,24 +104,39 @@
             </div>
 
             {{-- Modal Body --}}
-            <div class="flex-1 overflow-auto p-4">
-                @if($isPdf)
+            <div class="flex-1 overflow-auto p-4 flex items-center justify-center">
+
+                {{-- Loading --}}
+                <div x-show="loading" class="flex flex-col items-center gap-2 py-12">
+                    <svg class="w-8 h-8 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <p class="text-sm text-gray-500">Memuat dokumen...</p>
+                </div>
+
+                {{-- Error --}}
+                <div x-show="error && !loading" class="text-center py-12">
+                    <p class="text-sm text-red-500" x-text="error"></p>
+                </div>
+
+                {{-- PDF Preview --}}
+                <template x-if="src && isPdf && !loading">
                     <iframe
-                        src="{{ Storage::url($filePath) }}"
-                        class="w-full h-full min-h-96 rounded border border-gray-200"
+                        :src="src"
+                        class="w-full min-h-96 rounded border border-gray-200"
+                        style="height: 70vh;"
                         title="{{ $label }}">
-                        <p class="text-sm text-gray-500 p-4">
-                            Browser Anda tidak mendukung preview PDF.
-                            <a href="{{ Storage::url($filePath) }}" class="text-blue-600 underline" target="_blank">Unduh file</a>
-                        </p>
                     </iframe>
-                @else
+                </template>
+
+                {{-- Image Preview --}}
+                <template x-if="src && !isPdf && !loading">
                     <img
-                        src="{{ Storage::url($filePath) }}"
+                        :src="src"
                         alt="{{ $label }}"
-                        class="max-w-full h-auto mx-auto rounded border border-gray-200"
-                        onerror="this.parentElement.innerHTML='<p class=\'text-sm text-gray-500 text-center py-8\'>Gagal memuat gambar.</p>'">
-                @endif
+                        class="max-w-full h-auto mx-auto rounded border border-gray-200">
+                </template>
             </div>
         </div>
     </div>

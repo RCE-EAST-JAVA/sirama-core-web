@@ -11,7 +11,6 @@ use OpenApi\Attributes as OA;
     description: 'API untuk aplikasi mobile SIRAMA (Sistem Informasi Administrasi Kependudukan). Autentikasi menggunakan Laravel Sanctum Bearer Token.',
     contact: new OA\Contact(email: 'admin@sirama.id')
 )]
-#[OA\Server(url: '/api', description: 'API Server')]
 #[OA\SecurityScheme(
     securityScheme: 'sanctum',
     type: 'http',

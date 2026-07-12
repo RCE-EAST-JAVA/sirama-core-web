@@ -6,6 +6,7 @@ use App\Http\Controllers\Desa\DashboardController as DesaDashboardController;
 use App\Http\Controllers\Desa\PengajuanController as DesaPengajuanController;
 use App\Http\Controllers\Kecamatan\DashboardController as KecamatanDashboardController;
 use App\Http\Controllers\Kecamatan\PengajuanController as KecamatanPengajuanController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,9 +33,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Dokumen - serve file dengan auth + permission check
+Route::get('/dokumen/{pengajuan}/{field}', [DocumentController::class, 'show'])
+    ->middleware('auth')
+    ->name('dokumen.show');
+Route::get('/dokumen/{pengajuan}/{field}/data', [DocumentController::class, 'data'])
+    ->middleware('auth')
+    ->name('dokumen.data');
+
 /*
-|--------------------------------------------------------------------------
-| Admin Aplikasi Routes
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi'])->group(function () {

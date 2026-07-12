@@ -87,12 +87,6 @@
                     {
                         "sanctum": []
                     }
-                ],
-                "servers": [
-                    {
-                        "url": "/api",
-                        "description": "API Server"
-                    }
                 ]
             }
         },
@@ -1276,6 +1270,12 @@
         {
             "name": "Pengajuan",
             "description": "Manajemen pengajuan layanan kependudukan"
+        }
+    ],
+    "servers": [
+        {
+            "url": "http://localhost:8000/api",
+            "description": "API Server"
         }
     ]
 }

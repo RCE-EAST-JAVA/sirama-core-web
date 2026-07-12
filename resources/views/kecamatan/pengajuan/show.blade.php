@@ -68,6 +68,7 @@
                             @foreach($formDetail->getFileDokumen() as $fieldName => $label)
                                 @if($formDetail->$fieldName)
                                     <x-document-preview
+                                        :pengajuan-id="$pengajuan->id"
                                         :field-name="$fieldName"
                                         :file-path="$formDetail->$fieldName"
                                         :label="$label" />
