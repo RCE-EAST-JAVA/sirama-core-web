@@ -11,6 +11,10 @@ use OpenApi\Attributes as OA;
     description: 'API untuk aplikasi mobile SIRAMA (Sistem Informasi Administrasi Kependudukan). Autentikasi menggunakan Laravel Sanctum Bearer Token.',
     contact: new OA\Contact(email: 'admin@sirama.id')
 )]
+#[OA\Server(
+    url: '/api',
+    description: 'SIRAMA API Server'
+)]
 #[OA\SecurityScheme(
     securityScheme: 'sanctum',
     type: 'http',
@@ -19,7 +23,12 @@ use OpenApi\Attributes as OA;
     description: 'Masukkan token Sanctum. Contoh: Bearer {token}'
 )]
 #[OA\Tag(name: 'Auth', description: 'Autentikasi warga')]
-#[OA\Tag(name: 'Pengajuan', description: 'Manajemen pengajuan layanan kependudukan')]
+#[OA\Tag(name: 'Pengajuan', description: 'Endpoint umum pengajuan (list, detail, status)')]
+#[OA\Tag(name: 'Pengajuan - KIA', description: 'Pengajuan Kartu Identitas Anak')]
+#[OA\Tag(name: 'Pengajuan - 3 in 1', description: 'Pengajuan 3 in 1 (Akta Kelahiran + KK + KIA)')]
+#[OA\Tag(name: 'Pengajuan - KK Penambahan', description: 'Pengajuan penambahan anggota KK')]
+#[OA\Tag(name: 'Pengajuan - KK Pengurangan', description: 'Pengajuan pengurangan anggota KK')]
+#[OA\Tag(name: 'Pengajuan - KK Perbaikan', description: 'Pengajuan perbaikan data KK')]
 
 // --- Response Schemas ---
 
@@ -112,12 +121,15 @@ use OpenApi\Attributes as OA;
     ]
 )]
 
-// --- Form Schemas per Jenis Layanan ---
+// --- Request Schemas per Jenis Layanan (multipart/form-data) ---
+// Semua field data + dokumen dikirim sekaligus dalam satu request POST.
 
 #[OA\Schema(
-    schema: 'FormKia',
-    required: ['nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'nama_kepala_keluarga', 'agama', 'kewarganegaraan'],
+    schema: 'RequestKia',
+    description: 'Request body untuk POST /pengajuan/kia dan PUT /pengajuan/kia/{id}. Gunakan multipart/form-data.',
+    required: ['no_whatsapp', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'nama_kepala_keluarga', 'agama', 'kewarganegaraan', 'file_akta_kelahiran', 'file_kk', 'file_surat_nikah', 'file_foto_anak'],
     properties: [
+        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789', description: 'Nomor WhatsApp untuk notifikasi'),
         new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Anak Budi'),
         new OA\Property(property: 'tempat_lahir', type: 'string', example: 'Bandung'),
         new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '2020-01-15'),
@@ -125,63 +137,90 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'nama_kepala_keluarga', type: 'string', example: 'Budi Santoso'),
         new OA\Property(property: 'agama', type: 'string', example: 'Islam'),
         new OA\Property(property: 'kewarganegaraan', type: 'string', example: 'WNI'),
-    ],
-    description: 'Form untuk jenis layanan: kia'
+        new OA\Property(property: 'file_akta_kelahiran', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_kk', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_surat_nikah', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_foto_anak', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+    ]
 )]
 #[OA\Schema(
-    schema: 'Form3In1',
-    required: ['nama_lengkap_pemohon', 'desa', 'alamat_lengkap', 'nama_anak', 'tanggal_lahir_anak'],
+    schema: 'RequestTiga1',
+    description: 'Request body untuk POST /pengajuan/3-in-1 dan PUT /pengajuan/3-in-1/{id}. Gunakan multipart/form-data.',
+    required: ['no_whatsapp', 'nama_lengkap_pemohon', 'desa', 'alamat_lengkap', 'nama_anak', 'tanggal_lahir_anak', 'file_sk_lahir', 'file_kk', 'file_ktp_ortu', 'file_surat_nikah', 'file_foto_anak'],
     properties: [
+        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
         new OA\Property(property: 'nama_lengkap_pemohon', type: 'string', example: 'Budi Santoso'),
         new OA\Property(property: 'desa', type: 'string', example: 'Cibabat'),
         new OA\Property(property: 'alamat_lengkap', type: 'string', example: 'Jl. Merdeka No. 1'),
         new OA\Property(property: 'nama_anak', type: 'string', example: 'Anak Budi'),
         new OA\Property(property: 'tanggal_lahir_anak', type: 'string', format: 'date', example: '2026-01-01'),
-    ],
-    description: 'Form untuk jenis layanan: 3_in_1 (Akta + KK + KIA)'
+        new OA\Property(property: 'file_sk_lahir', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_kk', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_ktp_ortu', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_surat_nikah', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_foto_anak', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+    ]
 )]
 #[OA\Schema(
-    schema: 'FormKkPenambahan',
-    required: ['nama_kepala_keluarga', 'nomor_kk', 'alamat', 'rt', 'rw', 'nama_lengkap_tambahan', 'jenis_kelamin_tambahan', 'tempat_lahir_tambahan', 'tanggal_lahir_tambahan', 'status_hubungan', 'agama', 'nama_ibu_kandung', 'nik_ibu', 'nama_ayah_kandung', 'nik_ayah'],
+    schema: 'RequestKkPenambahan',
+    description: 'Request body untuk POST /pengajuan/kk-penambahan dan PUT /pengajuan/kk-penambahan/{id}. Gunakan multipart/form-data.',
+    required: [
+        'no_whatsapp', 'nama_kepala_keluarga', 'nomor_kk', 'alamat', 'nama_dusun',
+        'rt', 'rw', 'nama_ketua_rt', 'nama_ketua_rw', 'nama_lengkap_tambahan',
+        'jenis_kelamin_tambahan', 'tempat_lahir_tambahan', 'tanggal_lahir_tambahan',
+        'status_hubungan', 'kelainan_fisik_mental', 'penyandang_cacat', 'agama',
+        'nama_ibu_kandung', 'nik_ibu', 'nama_ayah_kandung', 'nik_ayah',
+        'file_kk_asli', 'file_sk_lahir_akta', 'file_ktp_suami_istri', 'file_surat_nikah',
+    ],
     properties: [
+        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
         new OA\Property(property: 'nama_kepala_keluarga', type: 'string', example: 'Budi Santoso'),
         new OA\Property(property: 'nomor_kk', type: 'string', example: '3277011234567890'),
         new OA\Property(property: 'alamat', type: 'string', example: 'Jl. Merdeka No. 1'),
-        new OA\Property(property: 'nama_dusun', type: 'string', nullable: true, example: 'Dusun Mawar'),
+        new OA\Property(property: 'nama_dusun', type: 'string', example: 'Dusun Mawar'),
         new OA\Property(property: 'rt', type: 'string', example: '001'),
         new OA\Property(property: 'rw', type: 'string', example: '002'),
-        new OA\Property(property: 'nama_ketua_rt', type: 'string', nullable: true, example: 'Ahmad'),
-        new OA\Property(property: 'nama_ketua_rw', type: 'string', nullable: true, example: 'Hasan'),
+        new OA\Property(property: 'nama_ketua_rt', type: 'string', example: 'Ahmad'),
+        new OA\Property(property: 'nama_ketua_rw', type: 'string', example: 'Hasan'),
         new OA\Property(property: 'nama_lengkap_tambahan', type: 'string', example: 'Anak Budi'),
         new OA\Property(property: 'jenis_kelamin_tambahan', type: 'string', enum: ['L', 'P'], example: 'L'),
         new OA\Property(property: 'tempat_lahir_tambahan', type: 'string', example: 'Bandung'),
         new OA\Property(property: 'tanggal_lahir_tambahan', type: 'string', format: 'date', example: '2020-01-01'),
         new OA\Property(property: 'status_hubungan', type: 'string', example: 'Anak'),
-        new OA\Property(property: 'kelainan_fisik_mental', type: 'string', nullable: true, example: null),
-        new OA\Property(property: 'penyandang_cacat', type: 'string', nullable: true, example: null),
+        new OA\Property(property: 'kelainan_fisik_mental', type: 'string', example: 'Tidak Ada'),
+        new OA\Property(property: 'penyandang_cacat', type: 'string', example: 'Tidak'),
         new OA\Property(property: 'agama', type: 'string', example: 'Islam'),
         new OA\Property(property: 'nama_ibu_kandung', type: 'string', example: 'Siti Aminah'),
         new OA\Property(property: 'nik_ibu', type: 'string', example: '3277010101900002'),
         new OA\Property(property: 'nama_ayah_kandung', type: 'string', example: 'Budi Santoso'),
         new OA\Property(property: 'nik_ayah', type: 'string', example: '3277010101900001'),
-    ],
-    description: 'Form untuk jenis layanan: kk_penambahan'
+        new OA\Property(property: 'file_kk_asli', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_sk_lahir_akta', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_ktp_suami_istri', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_surat_nikah', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+    ]
 )]
 #[OA\Schema(
-    schema: 'FormKkPengurangan',
-    required: ['alasan_pengurangan', 'nama_lengkap_anggota', 'alamat_lengkap_anggota', 'nik_anggota'],
+    schema: 'RequestKkPengurangan',
+    description: 'Request body untuk POST /pengajuan/kk-pengurangan dan PUT /pengajuan/kk-pengurangan/{id}. Gunakan multipart/form-data.',
+    required: ['no_whatsapp', 'alasan_pengurangan', 'nama_lengkap_anggota', 'alamat_lengkap_anggota', 'nik_anggota', 'file_kk_asli', 'file_ktp_asli', 'file_sk_pindah_mati'],
     properties: [
+        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
         new OA\Property(property: 'alasan_pengurangan', type: 'string', example: 'Pindah domisili ke luar kota'),
         new OA\Property(property: 'nama_lengkap_anggota', type: 'string', example: 'Anak Budi'),
         new OA\Property(property: 'alamat_lengkap_anggota', type: 'string', example: 'Jl. Merdeka No. 1, Bandung'),
         new OA\Property(property: 'nik_anggota', type: 'string', example: '3277010101900003'),
-    ],
-    description: 'Form untuk jenis layanan: kk_pengurangan'
+        new OA\Property(property: 'file_kk_asli', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_ktp_asli', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+        new OA\Property(property: 'file_sk_pindah_mati', type: 'string', format: 'binary', description: 'jpg/png/pdf, maks 5MB'),
+    ]
 )]
 #[OA\Schema(
-    schema: 'FormKkPerbaikan',
-    required: ['jenis_perbaikan_id', 'nama_kepala_keluarga', 'nomor_kk', 'nama_anggota_yang_diperbaiki', 'data_perbaikan'],
+    schema: 'RequestKkPerbaikan',
+    description: 'Request body untuk POST /pengajuan/kk-perbaikan dan PUT /pengajuan/kk-perbaikan/{id}. Gunakan multipart/form-data. file_pendukung adalah array, bisa lebih dari satu file.',
+    required: ['no_whatsapp', 'jenis_perbaikan_id', 'nama_kepala_keluarga', 'nomor_kk', 'nama_anggota_yang_diperbaiki', 'data_perbaikan', 'file_pendukung'],
     properties: [
+        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
         new OA\Property(property: 'jenis_perbaikan_id', type: 'integer', example: 1, description: 'ID dari master_jenis_perbaikan_kks'),
         new OA\Property(property: 'nama_kepala_keluarga', type: 'string', example: 'Budi Santoso'),
         new OA\Property(property: 'nomor_kk', type: 'string', example: '3277011234567890'),
@@ -192,82 +231,12 @@ use OpenApi\Attributes as OA;
             example: ['nama_lama' => 'Anakk Budi', 'nama_baru' => 'Anak Budi'],
             description: 'Key-value data yang perlu diperbaiki'
         ),
-    ],
-    description: 'Form untuk jenis layanan: kk_perbaikan'
-)]
-
-// --- Upload Dokumen per Jenis Layanan ---
-
-#[OA\Schema(
-    schema: 'UploadDokumenKia',
-    description: 'Field dokumen untuk jenis layanan kia',
-    properties: [
-        new OA\Property(property: 'field', type: 'string', enum: ['file_akta_kelahiran', 'file_kk', 'file_surat_nikah', 'file_foto_anak'], example: 'file_kk'),
-        new OA\Property(property: 'dokumen', type: 'string', format: 'binary'),
-    ]
-)]
-#[OA\Schema(
-    schema: 'UploadDokumen3In1',
-    description: 'Field dokumen untuk jenis layanan 3_in_1',
-    properties: [
-        new OA\Property(property: 'field', type: 'string', enum: ['file_sk_lahir', 'file_kk', 'file_ktp_ortu', 'file_surat_nikah', 'file_foto_anak'], example: 'file_sk_lahir'),
-        new OA\Property(property: 'dokumen', type: 'string', format: 'binary'),
-    ]
-)]
-#[OA\Schema(
-    schema: 'UploadDokumenKkPenambahan',
-    description: 'Field dokumen untuk jenis layanan kk_penambahan',
-    properties: [
-        new OA\Property(property: 'field', type: 'string', enum: ['file_kk_asli', 'file_sk_lahir_akta', 'file_ktp_suami_istri', 'file_surat_nikah'], example: 'file_kk_asli'),
-        new OA\Property(property: 'dokumen', type: 'string', format: 'binary'),
-    ]
-)]
-#[OA\Schema(
-    schema: 'UploadDokumenKkPengurangan',
-    description: 'Field dokumen untuk jenis layanan kk_pengurangan',
-    properties: [
-        new OA\Property(property: 'field', type: 'string', enum: ['file_kk_asli', 'file_ktp_asli', 'file_sk_pindah_mati'], example: 'file_kk_asli'),
-        new OA\Property(property: 'dokumen', type: 'string', format: 'binary'),
-    ]
-)]
-#[OA\Schema(
-    schema: 'UploadDokumenKkPerbaikan',
-    description: 'Field dokumen untuk jenis layanan kk_perbaikan (bisa multiple)',
-    properties: [
-        new OA\Property(property: 'field', type: 'string', enum: ['file_pendukung'], example: 'file_pendukung'),
-        new OA\Property(property: 'dokumen', type: 'string', format: 'binary'),
-    ]
-)]
-
-// --- Submit Form (satu endpoint, request body menyesuaikan jenis_layanan) ---
-
-#[OA\Post(
-    path: '/pengajuan/{pengajuan}/form',
-    operationId: 'submitForm',
-    summary: 'Submit data form pengajuan',
-    description: "Isi data form sesuai **jenis_layanan** pengajuan. Pilih schema yang sesuai:\n\n| jenis_layanan | Schema |\n|---|---|\n| `kia` | FormKia |\n| `3_in_1` | Form3In1 |\n| `kk_penambahan` | FormKkPenambahan |\n| `kk_pengurangan` | FormKkPengurangan |\n| `kk_perbaikan` | FormKkPerbaikan |\n\nSetelah form diisi, upload dokumen via `POST /pengajuan/{id}/dokumen`.",
-    tags: ['Pengajuan'],
-    security: [['sanctum' => []]],
-    parameters: [
-        new OA\Parameter(name: 'pengajuan', in: 'path', required: true, description: 'ID pengajuan', schema: new OA\Schema(type: 'integer', example: 1)),
-    ],
-    requestBody: new OA\RequestBody(
-        required: true,
-        content: new OA\JsonContent(
-            oneOf: [
-                new OA\Schema(ref: '#/components/schemas/FormKia'),
-                new OA\Schema(ref: '#/components/schemas/Form3In1'),
-                new OA\Schema(ref: '#/components/schemas/FormKkPenambahan'),
-                new OA\Schema(ref: '#/components/schemas/FormKkPengurangan'),
-                new OA\Schema(ref: '#/components/schemas/FormKkPerbaikan'),
-            ]
-        )
-    ),
-    responses: [
-        new OA\Response(response: 200, description: 'Data form berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
-        new OA\Response(response: 401, description: 'Unauthenticated'),
-        new OA\Response(response: 403, description: 'Forbidden'),
-        new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse')),
+        new OA\Property(
+            property: 'file_pendukung[]',
+            type: 'array',
+            items: new OA\Items(type: 'string', format: 'binary'),
+            description: 'Satu atau lebih file pendukung, jpg/png/pdf maks 5MB per file'
+        ),
     ]
 )]
 class ApiDocController extends Controller
