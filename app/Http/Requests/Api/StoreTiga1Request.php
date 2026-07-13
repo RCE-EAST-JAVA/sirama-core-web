@@ -27,7 +27,7 @@ class StoreTiga1Request extends FormRequest
             'jenis_kelamin'  => ['nullable', 'in:L,P'],
             'pekerjaan'      => ['nullable', 'string', 'max:255'],
             'alamat'         => ['nullable', 'string', 'max:500'],
-            'desa'           => ['nullable', 'string', 'max:255'],
+            'desa'           => ['nullable', 'string', 'exists:desas,nama'],
             'rt'             => ['nullable', 'string', 'max:10'],
             'rw'             => ['nullable', 'string', 'max:10'],
 

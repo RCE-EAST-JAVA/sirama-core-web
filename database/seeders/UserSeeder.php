@@ -23,18 +23,18 @@ class UserSeeder extends Seeder
         // Admin Kecamatan
         User::create([
             'nik'         => '0000000000000002',
-            'name'        => 'Admin Kecamatan Cimahi',
+            'name'        => 'Admin Kecamatan Sukosari',
             'no_whatsapp' => '081200000002',
             'password'    => Hash::make('password'),
             'role'        => 'admin_kecamatan',
             'desa'        => null,
         ]);
 
-        // Admin Desa — 3 desa berbeda
+        // Admin Desa — sesuai desa yang ada di tabel desas
         $desaList = [
-            ['nik' => '0000000000000003', 'name' => 'Admin Desa Cibabat',   'desa' => 'Cibabat',   'no_wa' => '081200000003'],
-            ['nik' => '0000000000000004', 'name' => 'Admin Desa Cimahi',    'desa' => 'Cimahi',    'no_wa' => '081200000004'],
-            ['nik' => '0000000000000005', 'name' => 'Admin Desa Padasuka',  'desa' => 'Padasuka',  'no_wa' => '081200000005'],
+            ['nik' => '0000000000000003', 'name' => 'Admin Desa Sukosari Lor', 'desa' => 'Desa Sukosari Lor', 'no_wa' => '081200000003'],
+            ['nik' => '0000000000000004', 'name' => 'Admin Desa Nogosari',     'desa' => 'Desa Nogosari',     'no_wa' => '081200000004'],
+            ['nik' => '0000000000000005', 'name' => 'Admin Desa Kerang',       'desa' => 'Desa Kerang',       'no_wa' => '081200000005'],
         ];
 
         foreach ($desaList as $desa) {
@@ -50,11 +50,11 @@ class UserSeeder extends Seeder
 
         // Warga contoh
         $wargaList = [
-            ['nik' => '3277010101900001', 'name' => 'Budi Santoso',    'desa' => 'Cibabat',  'no_wa' => '081211110001'],
-            ['nik' => '3277010101900002', 'name' => 'Siti Rahayu',     'desa' => 'Cibabat',  'no_wa' => '081211110002'],
-            ['nik' => '3277010101900003', 'name' => 'Ahmad Fauzi',     'desa' => 'Cimahi',   'no_wa' => '081211110003'],
-            ['nik' => '3277010101900004', 'name' => 'Dewi Lestari',    'desa' => 'Padasuka', 'no_wa' => '081211110004'],
-            ['nik' => '3277010101900005', 'name' => 'Hendra Gunawan',  'desa' => 'Cibabat',  'no_wa' => '081211110005'],
+            ['nik' => '3277010101900001', 'name' => 'Budi Santoso',    'desa' => 'Desa Sukosari Lor', 'no_wa' => '081211110001'],
+            ['nik' => '3277010101900002', 'name' => 'Siti Rahayu',     'desa' => 'Desa Sukosari Lor', 'no_wa' => '081211110002'],
+            ['nik' => '3277010101900003', 'name' => 'Ahmad Fauzi',     'desa' => 'Desa Nogosari',     'no_wa' => '081211110003'],
+            ['nik' => '3277010101900004', 'name' => 'Dewi Lestari',    'desa' => 'Desa Kerang',       'no_wa' => '081211110004'],
+            ['nik' => '3277010101900005', 'name' => 'Hendra Gunawan',  'desa' => 'Desa Pecalongan',   'no_wa' => '081211110005'],
         ];
 
         foreach ($wargaList as $warga) {

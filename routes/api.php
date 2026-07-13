@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Pengajuan\KkPerbaikanPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaLahirPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaKematianPengajuanController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\DesaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,8 @@ use App\Http\Controllers\Api\ProfileController;
 */
 
 // Public routes - tidak perlu token
+Route::get('/desas', [DesaController::class, 'index']);
+
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login',    [AuthController::class, 'login']);

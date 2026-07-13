@@ -193,6 +193,50 @@
                 ]
             }
         },
+        "/desas": {
+            "get": {
+                "tags": [
+                    "Desa"
+                ],
+                "summary": "Ambil daftar desa yang tersedia",
+                "description": "Endpoint publik — tidak perlu token. Digunakan untuk mengisi dropdown pilihan desa di frontend.",
+                "operationId": "d34174560b8cc0ea54cb82cc5883776e",
+                "responses": {
+                    "200": {
+                        "description": "Daftar desa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nama": {
+                                                        "type": "string",
+                                                        "example": "Desa Sukosari Lor"
+                                                    },
+                                                    "kecamatan": {
+                                                        "type": "string",
+                                                        "example": "Sukosari"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/pengajuan/akta-kematian": {
             "post": {
                 "tags": [
@@ -2696,6 +2740,10 @@
         {
             "name": "Pengajuan - KK Perbaikan",
             "description": "Pengajuan perbaikan data KK"
+        },
+        {
+            "name": "Desa",
+            "description": "Desa"
         },
         {
             "name": "Pengajuan - Akta Kematian",
