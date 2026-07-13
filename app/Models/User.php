@@ -19,6 +19,13 @@ class User extends Authenticatable
         'password',
         'role',
         'desa',
+        'tanggal_lahir',
+        'jenis_kelamin',
+        'pekerjaan',
+        'alamat',
+        'rt',
+        'rw',
+        'foto_profil',
     ];
 
     protected $hidden = [
@@ -29,8 +36,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'id'       => 'integer',
-            'password' => 'hashed',
+            'id'            => 'integer',
+            'password'      => 'hashed',
+            'tanggal_lahir' => 'date',
         ];
     }
 

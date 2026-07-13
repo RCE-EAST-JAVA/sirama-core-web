@@ -19,17 +19,17 @@ class StoreKiaRequest extends FormRequest
             : ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
 
         return [
-            // Data diri pemohon — disimpan ke tabel pengajuans
-            'nama_lengkap'         => [$required, 'string', 'max:255'],
-            'nik'                  => [$required, 'string', 'digits:16'],
-            'no_whatsapp'          => [$required, 'string', 'max:20'],
-            'tanggal_lahir'        => [$required, 'date'],
-            'jenis_kelamin'        => [$required, 'in:L,P'],
+            // Data diri pemohon — nullable, fallback ke profil user jika kosong
+            'nama_lengkap'         => ['nullable', 'string', 'max:255'],
+            'nik'                  => ['nullable', 'string', 'digits:16'],
+            'no_whatsapp'          => ['nullable', 'string', 'max:20'],
+            'tanggal_lahir'        => ['nullable', 'date'],
+            'jenis_kelamin'        => ['nullable', 'in:L,P'],
             'pekerjaan'            => ['nullable', 'string', 'max:255'],
-            'alamat'               => [$required, 'string', 'max:500'],
-            'desa'                 => [$required, 'string', 'max:255'],
-            'rt'                   => [$required, 'string', 'max:10'],
-            'rw'                   => [$required, 'string', 'max:10'],
+            'alamat'               => ['nullable', 'string', 'max:500'],
+            'desa'                 => ['nullable', 'string', 'max:255'],
+            'rt'                   => ['nullable', 'string', 'max:10'],
+            'rw'                   => ['nullable', 'string', 'max:10'],
 
             // Data spesifik KIA — disimpan ke tabel form_kias
             'tempat_lahir'         => [$required, 'string', 'max:255'],

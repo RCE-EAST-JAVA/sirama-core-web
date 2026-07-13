@@ -72,20 +72,22 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
     public function store(StoreKkPerbaikanRequest $request): JsonResponse
     {
         return DB::transaction(function () use ($request) {
+            $user = Auth::user();
+
             $pengajuan = Pengajuan::create([
-                'user_id'       => Auth::id(),
+                'user_id'       => $user->id,
                 'jenis_layanan' => 'kk_perbaikan',
-                'no_whatsapp'   => $request->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap,
-                'nik'           => $request->nik,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan,
-                'alamat'        => $request->alamat,
-                'desa'          => $request->desa,
-                'rt'            => $request->rt,
-                'rw'            => $request->rw,
                 'status'        => 'berkas_diterima',
+                'no_whatsapp'   => $request->no_whatsapp   ?? $user->no_whatsapp,
+                'nama_lengkap'  => $request->nama_lengkap  ?? $user->name,
+                'nik'           => $request->nik            ?? $user->nik,
+                'tanggal_lahir' => $request->tanggal_lahir ?? $user->tanggal_lahir,
+                'jenis_kelamin' => $request->jenis_kelamin ?? $user->jenis_kelamin,
+                'pekerjaan'     => $request->pekerjaan     ?? $user->pekerjaan,
+                'alamat'        => $request->alamat         ?? $user->alamat,
+                'desa'          => $request->desa           ?? $user->desa,
+                'rt'            => $request->rt             ?? $user->rt,
+                'rw'            => $request->rw             ?? $user->rw,
             ]);
 
             // Simpan setiap file pendukung, hasilnya array of paths

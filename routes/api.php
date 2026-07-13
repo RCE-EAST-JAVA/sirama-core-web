@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Pengajuan\KkPenguranganPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\KkPerbaikanPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaLahirPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaKematianPengajuanController;
+use App\Http\Controllers\Api\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,4 +63,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Akta Kematian
     Route::post('/pengajuan/akta-kematian',              [AktaKematianPengajuanController::class, 'store']);
     Route::post('/pengajuan/akta-kematian/{pengajuan}',   [AktaKematianPengajuanController::class, 'update']);
+
+    // Profile
+    Route::get('/profile',  [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'update']);
 });
