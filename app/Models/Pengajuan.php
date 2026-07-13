@@ -32,9 +32,10 @@ class Pengajuan extends Model
     protected function casts(): array
     {
         return [
-            'id'            => 'integer',
-            'user_id'       => 'integer',
-            'tanggal_lahir' => 'date',
+            'id'              => 'integer',
+            'user_id'         => 'integer',
+            'tanggal_lahir'   => 'date',
+            'lokasi_dokumen'  => 'array',
         ];
     }
 

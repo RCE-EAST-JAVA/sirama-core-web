@@ -61,6 +61,39 @@ class DocumentController extends Controller
     }
 
     /**
+     * Serve softfile dari lokasi_dokumen (array JSON) berdasarkan index
+     */
+    public function softfile(Request $request, Pengajuan $pengajuan, int $index): Response
+    {
+        $user = auth()->user();
+
+        // Permission check
+        if ($user->role === 'warga') {
+            if ($pengajuan->user_id !== $user->id) abort(403);
+        } elseif ($user->role === 'admin_desa') {
+            if ($pengajuan->user->desa !== $user->desa) abort(403);
+        }
+
+        $files = $pengajuan->lokasi_dokumen ?? [];
+
+        if (!isset($files[$index])) abort(404, 'Softfile tidak ditemukan');
+
+        $filePath = $files[$index];
+
+        if (!Storage::disk('local')->exists($filePath)) abort(404, 'File tidak ditemukan di storage');
+
+        $content  = Storage::disk('local')->get($filePath);
+        $mimeType = Storage::disk('local')->mimeType($filePath);
+        $fileName = basename($filePath);
+
+        return response($content, 200, [
+            'Content-Type'        => $mimeType,
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Cache-Control'       => 'private, no-store',
+        ]);
+    }
+
+    /**
      * Serve file langsung (fallback)
      */
     public function show(Request $request, Pengajuan $pengajuan, string $field): Response

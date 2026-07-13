@@ -100,15 +100,27 @@
             @endif
         </div>
 
-        {{-- Kolom Kanan: Aksi Proses --}}
+        {{-- Kolom Kanan: Aksi Proses + Softfile --}}
         <div class="space-y-6">
 
+            {{-- Flash Messages --}}
+            @if(session('success'))
+            <div class="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3">
+                {{ session('success') }}
+            </div>
+            @endif
+            @if(session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+                {{ session('error') }}
+            </div>
+            @endif
+
+            {{-- Form Keputusan --}}
             @if(in_array($pengajuan->status, ['diverifikasi_desa', 'diproses_kecamatan']))
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <h3 class="text-sm font-semibold text-gray-700 mb-4">Proses Pengajuan</h3>
 
                 <form method="POST" action="{{ route('kecamatan.pengajuan.proses', $pengajuan) }}"
-                      enctype="multipart/form-data"
                       x-data="{ aksi: '' }">
                     @csrf
 
@@ -117,46 +129,37 @@
                         <div class="space-y-2">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" name="aksi" value="approve" x-model="aksi"
-                                    class="text-blue-600 focus:ring-blue-500">
+                                    class="text-brand-600 focus:ring-brand-500">
                                 <span class="text-sm text-gray-700">Proses Pengajuan</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" name="aksi" value="selesai" x-model="aksi"
-                                    class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm text-gray-700">Selesai (Upload Softfile)</span>
+                                    class="text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm text-gray-700">Tandai Selesai</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" name="aksi" value="tolak" x-model="aksi"
-                                    class="text-blue-600 focus:ring-blue-500">
+                                    class="text-brand-600 focus:ring-brand-500">
                                 <span class="text-sm text-gray-700">Tolak & Kembalikan ke Desa</span>
                             </label>
                         </div>
                     </div>
 
-                    {{-- Upload softfile jika selesai --}}
-                    <div class="mb-4" x-show="aksi === 'selesai'" x-transition>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">
-                            Softfile Dokumen <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" name="softfile" accept=".pdf"
-                            class="w-full text-sm text-gray-500 file:mr-3 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-lg file:px-3 file:py-1.5 hover:file:bg-blue-100">
-                        <p class="text-xs text-gray-400 mt-1">Format PDF, maks. 10MB</p>
-                    </div>
-
                     <div class="mb-4" x-show="aksi !== ''" x-transition>
                         <label class="block text-xs font-medium text-gray-600 mb-1">
-                            Catatan <span x-show="aksi === 'tolak'" class="text-red-500">*</span>
+                            Catatan
+                            <span x-show="aksi === 'tolak'" class="text-red-500">*</span>
                             <span x-show="aksi !== 'tolak'" class="text-gray-400">(opsional)</span>
                         </label>
                         <textarea name="catatan" rows="3"
-                            class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Catatan keputusan..."></textarea>
                     </div>
 
                     <button type="submit"
                         x-bind:disabled="aksi === ''"
-                        x-bind:class="aksi === '' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'"
-                        class="w-full bg-blue-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
+                        x-bind:class="aksi === '' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-700'"
+                        class="w-full bg-brand-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
                         Kirim Keputusan
                     </button>
                 </form>
@@ -165,15 +168,79 @@
             <div class="bg-gray-50 rounded-xl border border-gray-200 p-6 text-center">
                 <p class="text-sm text-gray-500">Pengajuan ini sudah ditindaklanjuti.</p>
                 <p class="text-xs text-gray-400 mt-1">Status: {{ $pengajuan->getLabelStatus() }}</p>
-
-                @if($pengajuan->lokasi_dokumen)
-                    <a href="{{ route('kecamatan.pengajuan.show', $pengajuan) }}"
-                       class="mt-3 inline-block text-xs text-blue-600 hover:text-blue-800 font-medium">
-                        Lihat Softfile
-                    </a>
-                @endif
             </div>
             @endif
+
+            {{-- Softfile --}}
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4">Softfile Dokumen</h3>
+
+                {{-- List softfile yang sudah ada --}}
+                @if(!empty($pengajuan->lokasi_dokumen))
+                <ul class="space-y-2 mb-4">
+                    @foreach($pengajuan->lokasi_dokumen as $filePath)
+                    <li class="flex items-center justify-between gap-2 text-sm bg-gray-50 rounded-lg px-3 py-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="truncate text-gray-700">{{ basename($filePath) }}</span>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <a href="{{ route('dokumen.softfile', [$pengajuan, $loop->index]) }}"
+                               class="text-xs text-brand-600 hover:text-brand-800 font-medium px-2 py-1 rounded hover:bg-brand-50 transition-colors">
+                                Unduh
+                            </a>
+                            <form method="POST"
+                                  action="{{ route('kecamatan.pengajuan.softfile.hapus', $pengajuan) }}"
+                                  onsubmit="return confirm('Hapus file ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="path" value="{{ $filePath }}">
+                                <button type="submit"
+                                    class="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+                @else
+                <p class="text-xs text-gray-400 mb-4">Belum ada softfile.</p>
+                @endif
+
+                {{-- Form upload softfile baru --}}
+                <form method="POST"
+                      action="{{ route('kecamatan.pengajuan.softfile.upload', $pengajuan) }}"
+                      enctype="multipart/form-data"
+                      x-data="{ files: [] }">
+                    @csrf
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Upload Softfile (PDF)</label>
+                    <input type="file" name="softfile[]" accept=".pdf" multiple
+                        x-on:change="files = Array.from($event.target.files).map(f => f.name)"
+                        class="w-full text-sm text-gray-500 file:mr-3 file:text-xs file:font-medium file:bg-brand-50 file:text-brand-700 file:border-0 file:rounded-lg file:px-3 file:py-1.5 hover:file:bg-brand-100 cursor-pointer">
+                    <p class="text-xs text-gray-400 mt-1">Bisa pilih lebih dari satu. Format PDF, maks. 10MB per file.</p>
+
+                    <template x-if="files.length > 0">
+                        <ul class="mt-2 space-y-1">
+                            <template x-for="name in files" :key="name">
+                                <li class="text-xs text-gray-600 flex items-center gap-1">
+                                    <span class="text-gray-400">&#8250;</span>
+                                    <span x-text="name"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </template>
+
+                    <button type="submit"
+                        x-bind:disabled="files.length === 0"
+                        x-bind:class="files.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-700'"
+                        class="mt-3 w-full bg-brand-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
+                        Upload
+                    </button>
+                </form>
+            </div>
 
             {{-- OCR Results --}}
             @if($pengajuan->ocrResults->isNotEmpty())
