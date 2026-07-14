@@ -263,6 +263,38 @@ abstract class BasePengajuanController extends Controller
     }
 
     /**
+     * Serve file private dari disk local dengan autentikasi Sanctum.
+     * GET /api/pengajuan/download?path=pengajuan/kia/xxx.pdf
+     */
+    public function download(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
+    {
+        $path = $request->query('path');
+
+        if (!$path) {
+            return response()->json(['message' => 'Parameter path diperlukan.'], 422);
+        }
+
+        // Cegah path traversal
+        $path = ltrim($path, '/');
+        if (str_contains($path, '..')) {
+            return response()->json(['message' => 'Path tidak valid.'], 422);
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
+
+        if (!$disk->exists($path)) {
+            return response()->json(['message' => 'File tidak ditemukan.'], 404);
+        }
+
+        $fileName = basename($path);
+        $mimeType = $disk->mimeType($path) ?: 'application/octet-stream';
+
+        return $disk->download($path, $fileName, [
+            'Content-Type' => $mimeType,
+        ]);
+    }
+
+    /**
      * Pastikan pengajuan milik user yang sedang login.
      */
     protected function authorizeWarga(Pengajuan $pengajuan): void

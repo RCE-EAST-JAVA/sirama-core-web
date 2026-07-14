@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Pengajuan - shared endpoints (index, show, status)
     // Gunakan KiaPengajuanController sebagai concrete class untuk shared methods
     Route::get('/pengajuan/stats',               [KiaPengajuanController::class, 'stats']);
+    Route::get('/pengajuan/download',            [KiaPengajuanController::class, 'download']);
     Route::get('/pengajuan',                    [KiaPengajuanController::class, 'index']);
     Route::get('/pengajuan/{pengajuan}',         [KiaPengajuanController::class, 'show']);
     Route::get('/pengajuan/{pengajuan}/status',  [KiaPengajuanController::class, 'status']);
