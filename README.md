@@ -1,58 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIRAMA — Sistem Informasi Administrasi Masyarakat
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk pengelolaan pengajuan layanan administrasi kependudukan di Kecamatan Sukosari. Dibangun dengan Laravel 11, Tailwind CSS, dan Alpine.js.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Pengajuan layanan kependudukan secara online (KIA, KK, Akta Kelahiran, Akta Kematian)
+- Manajemen alur verifikasi: Admin Desa → Admin Kecamatan
+- Dashboard statistik per role
+- OCR dokumen otomatis
+- REST API untuk aplikasi mobile (Laravel Sanctum)
+- Manajemen user oleh Admin Aplikasi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Role
 
-## Learning Laravel
+| Role | Akses |
+|------|-------|
+| `warga` | Submit & pantau pengajuan via mobile app |
+| `admin_desa` | Verifikasi pengajuan di level desa |
+| `admin_kecamatan` | Proses & selesaikan pengajuan di level kecamatan |
+| `admin_aplikasi` | Manajemen user dan riwayat semua pengajuan |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalasi
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Prasyarat
 
-## Agentic Development
+- PHP >= 8.2
+- Composer
+- Node.js >= 18
+- MySQL
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Langkah Setup
 
 ```bash
-composer require laravel/boost --dev
+# Clone repository
+git clone <repo-url>
+cd sirama-core-web
 
-php artisan boost:install
+# Install dependencies
+composer install
+npm install
+
+# Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# Konfigurasi database di .env
+# DB_DATABASE=db_sirama
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# Jalankan migration dan seeder
+php artisan migrate
+php artisan db:seed
+
+# Link storage
+php artisan storage:link
+
+# Build assets
+npm run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Akun Default (dari Seeder)
 
-## Contributing
+| NIK | Role | Password |
+|-----|------|----------|
+| `0000000000000001` | Admin Aplikasi | `password` |
+| `0000000000000002` | Admin Kecamatan | `password` |
+| `0000000000000003` | Admin Desa Sukosari Lor | `password` |
+| `0000000000000004` | Admin Desa Nogosari | `password` |
+| `0000000000000005` | Admin Desa Kerang | `password` |
+| `3277010101900001` | Warga | `password` |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Struktur Route
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Prefix | Middleware | Keterangan |
+|--------|------------|------------|
+| `/admin` | `auth`, `role:admin_aplikasi` | Dashboard & manajemen user |
+| `/desa` | `auth`, `role:admin_desa` | Verifikasi pengajuan |
+| `/kecamatan` | `auth`, `role:admin_kecamatan` | Proses pengajuan |
+| `/api` | Sanctum (token) | REST API untuk mobile |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## API Mobile
 
-## License
+API tersedia untuk pengembangan aplikasi mobile. Autentikasi menggunakan Laravel Sanctum (Bearer Token).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Base URL:** `http://{domain}/api`
+
+**Endpoint tersedia:**
+- `POST /api/auth/register` — Registrasi warga
+- `POST /api/auth/login` — Login
+- `POST /api/auth/logout` — Logout
+- `GET  /api/desas` — Daftar desa (publik)
+- `GET  /api/profile` — Profil user
+- `POST /api/profile` — Update profil
+- `GET  /api/pengajuan` — List pengajuan
+- `GET  /api/pengajuan/{id}` — Detail pengajuan
+- `GET  /api/pengajuan/{id}/status` — Cek status
+- `POST /api/pengajuan/kia` — Pengajuan KIA
+- `POST /api/pengajuan/3-in-1` — Pengajuan 3 in 1
+- `POST /api/pengajuan/kk-penambahan` — KK Penambahan
+- `POST /api/pengajuan/kk-pengurangan` — KK Pengurangan
+- `POST /api/pengajuan/kk-perbaikan` — KK Perbaikan
+- `POST /api/pengajuan/akta-lahir` — Akta Kelahiran
+- `POST /api/pengajuan/akta-kematian` — Akta Kematian
+
+Dokumentasi lengkap ada di [`API_DOCUMENTATION.md`](./API_DOCUMENTATION.md).
+
+---
+
+## Tech Stack
+
+- **Backend:** Laravel 11, PHP 8.2
+- **Frontend:** Blade, Tailwind CSS, Alpine.js, Vite
+- **Database:** MySQL
+- **Auth Web:** Laravel Breeze (session)
+- **Auth API:** Laravel Sanctum (token)
+- **Queue/Jobs:** Laravel Queue
+
+---
+
+## Lisensi
+
+Internal project — Kecamatan Sukosari.
