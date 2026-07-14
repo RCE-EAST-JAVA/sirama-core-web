@@ -12,8 +12,12 @@ use OpenApi\Attributes as OA;
     contact: new OA\Contact(email: 'admin@sirama.id')
 )]
 #[OA\Server(
-    url: '/api',
-    description: 'SIRAMA API Server'
+    url: 'https://sirama.tunggulmajid.my.id/api',
+    description: 'SIRAMA API Server (Production)'
+)]
+#[OA\Server(
+    url: 'http://127.0.0.1:8000/api',
+    description: 'SIRAMA API Server (Local)'
 )]
 #[OA\SecurityScheme(
     securityScheme: 'sanctum',
