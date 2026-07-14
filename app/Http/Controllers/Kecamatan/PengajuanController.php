@@ -21,7 +21,7 @@ class PengajuanController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         } else {
-            $query->whereIn('status', ['diverifikasi_desa', 'diproses_kecamatan']);
+            $query->whereIn('status', ['diverifikasi_desa', 'diverifikasi_kecamatan']);
         }
 
         if ($request->filled('jenis_layanan')) {
@@ -59,7 +59,7 @@ class PengajuanController extends Controller
         ]);
 
         $statusBaru = match ($request->aksi) {
-            'approve' => 'diproses_kecamatan',
+            'approve' => 'diverifikasi_kecamatan',
             'tolak'   => 'ditolak_kecamatan',
             'selesai' => 'selesai',
         };

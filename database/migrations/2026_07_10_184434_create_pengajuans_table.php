@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->enum('jenis_layanan', ["kia","3_in_1","kk_penambahan","kk_pengurangan","kk_perbaikan","akta_kelahiran","akta_kematian"]);
-            $table->enum('status', ["berkas_diterima","ditolak_desa","diverifikasi_desa","ditolak_kecamatan","diproses_kecamatan","selesai"])->default('berkas_diterima');
+            $table->enum('status', ["berkas_diterima","ditolak_desa","diverifikasi_desa","ditolak_kecamatan","diverifikasi_kecamatan","selesai"])->default('berkas_diterima');
             $table->string('lokasi_dokumen')->nullable();
             $table->string('no_whatsapp');
             $table->timestamps();

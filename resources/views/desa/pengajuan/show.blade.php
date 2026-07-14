@@ -22,20 +22,40 @@
                 </div>
                 <div class="grid grid-cols-2 gap-5">
                     <div>
-                        <p class="text-sm text-gray-500 mb-1">Nama Pemohon</p>
-                        <p class="text-base font-semibold text-gray-900">{{ $pengajuan->user->name }}</p>
+                        <p class="text-sm text-gray-500 mb-1">Nama Lengkap</p>
+                        <p class="text-base font-semibold text-gray-900">{{ $pengajuan->nama_lengkap ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">NIK</p>
-                        <p class="text-base font-mono text-gray-700">{{ $pengajuan->user->nik }}</p>
+                        <p class="text-base font-mono text-gray-700">{{ $pengajuan->nik ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">No. WhatsApp</p>
-                        <p class="text-base text-gray-700">{{ $pengajuan->no_whatsapp ?? $pengajuan->user->no_whatsapp }}</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->no_whatsapp ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Tanggal Lahir</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->tanggal_lahir?->format('d M Y') ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Jenis Kelamin</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->jenis_kelamin === 'L' ? 'Laki-laki' : ($pengajuan->jenis_kelamin === 'P' ? 'Perempuan' : '-') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Pekerjaan</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->pekerjaan ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-sm text-gray-500 mb-1">Alamat</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->alamat ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Desa</p>
-                        <p class="text-base text-gray-700">{{ $pengajuan->user->desa ?? '-' }}</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->desa ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">RT / RW</p>
+                        <p class="text-base text-gray-700">{{ $pengajuan->rt ?? '-' }} / {{ $pengajuan->rw ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -44,9 +64,15 @@
             @if($formDetail)
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <h3 class="text-base font-semibold text-gray-900 mb-4">Detail Berkas</h3>
+                @php
+                    $fileFields = method_exists($formDetail, 'getFileDokumen')
+                        ? array_keys($formDetail->getFileDokumen())
+                        : [];
+                    $skipFields = array_merge(['id', 'pengajuan_id', 'created_at', 'updated_at'], $fileFields);
+                @endphp
                 <div class="grid grid-cols-2 gap-5">
                     @foreach($formDetail->getAttributes() as $key => $value)
-                        @if(!in_array($key, ['id', 'pengajuan_id', 'created_at', 'updated_at']) && !is_null($value))
+                        @if(!in_array($key, $skipFields) && !is_null($value))
                             <div>
                                 <p class="text-sm text-gray-500 mb-1 capitalize">{{ str_replace('_', ' ', $key) }}</p>
                                 <p class="text-base text-gray-700">

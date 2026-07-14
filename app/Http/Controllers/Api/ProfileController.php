@@ -61,10 +61,27 @@ class ProfileController extends Controller
                 'rt'            => $user->rt,
                 'rw'            => $user->rw,
                 'foto_profil'   => $user->foto_profil
-                    ? Storage::url($user->foto_profil)
+                    ? route('api.profile.foto')
                     : null,
                 'role'          => $user->role,
             ],
+        ]);
+    }
+
+    public function foto(): \Symfony\Component\HttpFoundation\Response
+    {
+        $user = Auth::user();
+
+        if (!$user->foto_profil || !Storage::disk('local')->exists($user->foto_profil)) {
+            abort(404, 'Foto profil tidak ditemukan');
+        }
+
+        $content  = Storage::disk('local')->get($user->foto_profil);
+        $mimeType = Storage::disk('local')->mimeType($user->foto_profil);
+
+        return response($content, 200, [
+            'Content-Type'  => $mimeType,
+            'Cache-Control' => 'private, max-age=3600',
         ]);
     }
 
@@ -114,9 +131,9 @@ class ProfileController extends Controller
 
         if ($request->hasFile('foto_profil')) {
             if ($user->foto_profil) {
-                Storage::disk('public')->delete($user->foto_profil);
+                Storage::disk('local')->delete($user->foto_profil);
             }
-            $data['foto_profil'] = $request->file('foto_profil')->store('profil', 'public');
+            $data['foto_profil'] = $request->file('foto_profil')->store('profil', 'local');
         }
 
         if ($request->filled('password')) {
@@ -140,7 +157,7 @@ class ProfileController extends Controller
                 'rt'            => $user->rt,
                 'rw'            => $user->rw,
                 'foto_profil'   => $user->foto_profil
-                    ? Storage::url($user->foto_profil)
+                    ? route('api.profile.foto')
                     : null,
                 'role'          => $user->role,
             ],

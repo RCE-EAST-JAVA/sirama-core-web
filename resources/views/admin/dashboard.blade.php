@@ -14,7 +14,7 @@
         </div>
         <div class="bg-white rounded-xl border border-gray-200 px-5 py-5">
             <p class="text-sm text-gray-500 font-medium">Sedang Diproses</p>
-            <p class="text-3xl font-bold text-purple-600 mt-1">{{ $stats['diproses_kecamatan'] }}</p>
+            <p class="text-3xl font-bold text-purple-600 mt-1">{{ $stats['diverifikasi_kecamatan'] }}</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 px-5 py-5">
             <p class="text-sm text-gray-500 font-medium">Ditolak</p>

@@ -22,7 +22,7 @@ class DashboardController extends Controller
             'berkas_diterima'    => (clone $query)->where('status', 'berkas_diterima')->count(),
             'diverifikasi_desa'  => (clone $query)->where('status', 'diverifikasi_desa')->count(),
             'ditolak_desa'       => (clone $query)->where('status', 'ditolak_desa')->count(),
-            'diteruskan'         => (clone $query)->whereIn('status', ['diproses_kecamatan', 'selesai'])->count(),
+            'diteruskan'         => (clone $query)->whereIn('status', ['diverifikasi_kecamatan', 'selesai'])->count(),
         ];
 
         $pengajuan_terbaru = (clone $query)

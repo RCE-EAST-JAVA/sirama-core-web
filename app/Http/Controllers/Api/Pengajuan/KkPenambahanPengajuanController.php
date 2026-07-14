@@ -25,8 +25,6 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     required: [
-                        'nama_lengkap', 'nik', 'no_whatsapp', 'tanggal_lahir', 'jenis_kelamin',
-                        'alamat', 'desa', 'rt', 'rw',
                         'nama_kepala_keluarga', 'nomor_kk', 'nama_ketua_rt', 'nama_ketua_rw',
                         'nama_lengkap_tambahan', 'jenis_kelamin_tambahan', 'tempat_lahir_tambahan',
                         'tanggal_lahir_tambahan', 'status_hubungan', 'kelainan_fisik_mental',
@@ -35,16 +33,6 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                         'file_kk_asli', 'file_sk_lahir_akta', 'file_ktp_suami_istri', 'file_surat_nikah',
                     ],
                     properties: [
-                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Budi Santoso'),
-                        new OA\Property(property: 'nik', type: 'string', example: '3277010101900001'),
-                        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
-                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '1990-01-01'),
-                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
-                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true),
-                        new OA\Property(property: 'alamat', type: 'string'),
-                        new OA\Property(property: 'desa', type: 'string'),
-                        new OA\Property(property: 'rt', type: 'string'),
-                        new OA\Property(property: 'rw', type: 'string'),
                         new OA\Property(property: 'nama_kepala_keluarga', type: 'string'),
                         new OA\Property(property: 'nomor_kk', type: 'string'),
                         new OA\Property(property: 'nama_ketua_rt', type: 'string'),
@@ -80,21 +68,7 @@ class KkPenambahanPengajuanController extends BasePengajuanController
         return DB::transaction(function () use ($request) {
             $user = Auth::user();
 
-            $pengajuan = Pengajuan::create([
-                'user_id'       => $user->id,
-                'jenis_layanan' => 'kk_penambahan',
-                'status'        => 'berkas_diterima',
-                'no_whatsapp'   => $request->no_whatsapp   ?? $user->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap  ?? $user->name,
-                'nik'           => $request->nik            ?? $user->nik,
-                'tanggal_lahir' => $request->tanggal_lahir ?? $user->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin ?? $user->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan     ?? $user->pekerjaan,
-                'alamat'        => $request->alamat         ?? $user->alamat,
-                'desa'          => $request->desa           ?? $user->desa,
-                'rt'            => $request->rt             ?? $user->rt,
-                'rw'            => $request->rw             ?? $user->rw,
-            ]);
+            $pengajuan = Pengajuan::create($this->buildPengajuanData($user, 'kk_penambahan'));
 
             FormKkPenambahan::create([
                 'pengajuan_id'           => $pengajuan->id,
@@ -127,7 +101,7 @@ class KkPenambahanPengajuanController extends BasePengajuanController
         });
     }
 
-    #[OA\Put(
+    #[OA\Post(
         path: '/pengajuan/kk-penambahan/{id}',
         summary: 'Revisi pengajuan KK Penambahan',
         description: 'Mengupdate data form dan/atau dokumen pengajuan KK Penambahan. File yang tidak dikirim tidak akan diubah.',
@@ -136,6 +110,36 @@ class KkPenambahanPengajuanController extends BasePengajuanController
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    properties: [
+                        new OA\Property(property: 'nama_kepala_keluarga', type: 'string'),
+                        new OA\Property(property: 'nomor_kk', type: 'string'),
+                        new OA\Property(property: 'nama_ketua_rt', type: 'string'),
+                        new OA\Property(property: 'nama_ketua_rw', type: 'string'),
+                        new OA\Property(property: 'nama_lengkap_tambahan', type: 'string'),
+                        new OA\Property(property: 'jenis_kelamin_tambahan', type: 'string', enum: ['L', 'P']),
+                        new OA\Property(property: 'tempat_lahir_tambahan', type: 'string'),
+                        new OA\Property(property: 'tanggal_lahir_tambahan', type: 'string', format: 'date'),
+                        new OA\Property(property: 'status_hubungan', type: 'string'),
+                        new OA\Property(property: 'kelainan_fisik_mental', type: 'string'),
+                        new OA\Property(property: 'penyandang_cacat', type: 'string'),
+                        new OA\Property(property: 'agama', type: 'string'),
+                        new OA\Property(property: 'nama_ibu_kandung', type: 'string'),
+                        new OA\Property(property: 'nik_ibu', type: 'string'),
+                        new OA\Property(property: 'nama_ayah_kandung', type: 'string'),
+                        new OA\Property(property: 'nik_ayah', type: 'string'),
+                        new OA\Property(property: 'file_kk_asli', type: 'string', format: 'binary'),
+                        new OA\Property(property: 'file_sk_lahir_akta', type: 'string', format: 'binary'),
+                        new OA\Property(property: 'file_ktp_suami_istri', type: 'string', format: 'binary'),
+                        new OA\Property(property: 'file_surat_nikah', type: 'string', format: 'binary'),
+                    ]
+                )
+            )
+        ),
         responses: [
             new OA\Response(response: 200, description: 'Pengajuan KK Penambahan berhasil diupdate'),
             new OA\Response(response: 403, description: 'Forbidden'),
@@ -148,19 +152,6 @@ class KkPenambahanPengajuanController extends BasePengajuanController
         $this->authorizeWarga($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
-            $pengajuan->update([
-                'no_whatsapp'   => $request->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap,
-                'nik'           => $request->nik,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan,
-                'alamat'        => $request->alamat,
-                'desa'          => $request->desa,
-                'rt'            => $request->rt,
-                'rw'            => $request->rw,
-            ]);
-
             $formData = $request->only([
                 'nama_kepala_keluarga', 'nomor_kk',
                 'nama_ketua_rt', 'nama_ketua_rw', 'nama_lengkap_tambahan', 'jenis_kelamin_tambahan',
@@ -171,6 +162,7 @@ class KkPenambahanPengajuanController extends BasePengajuanController
 
             foreach (['file_kk_asli', 'file_sk_lahir_akta', 'file_ktp_suami_istri', 'file_surat_nikah'] as $field) {
                 if ($request->hasFile($field)) {
+                    $this->deleteFile($pengajuan->formKkPenambahan?->$field);
                     $formData[$field] = $this->storeFile($request->file($field), 'pengajuan/kk-penambahan');
                 }
             }

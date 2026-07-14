@@ -114,7 +114,7 @@ class Pengajuan extends Model
             'ditolak_desa'        => 'Ditolak Desa',
             'diverifikasi_desa'   => 'Diverifikasi Desa',
             'ditolak_kecamatan'   => 'Ditolak Kecamatan',
-            'diproses_kecamatan'  => 'Diproses Kecamatan',
+            'diverifikasi_kecamatan' => 'Diverifikasi Kecamatan',
             'selesai'             => 'Selesai',
             default               => $this->status,
         };

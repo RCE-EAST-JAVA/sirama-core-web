@@ -22,20 +22,40 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                        <p class="text-xs text-gray-500 mb-0.5">Nama Pemohon</p>
-                        <p class="font-medium text-gray-900">{{ $pengajuan->user->name }}</p>
+                        <p class="text-xs text-gray-500 mb-0.5">Nama Lengkap</p>
+                        <p class="font-medium text-gray-900">{{ $pengajuan->nama_lengkap ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-0.5">NIK</p>
-                        <p class="font-mono text-gray-700">{{ $pengajuan->user->nik }}</p>
+                        <p class="font-mono text-gray-700">{{ $pengajuan->nik ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-0.5">No. WhatsApp</p>
-                        <p class="text-gray-700">{{ $pengajuan->no_whatsapp ?? $pengajuan->user->no_whatsapp }}</p>
+                        <p class="text-gray-700">{{ $pengajuan->no_whatsapp ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-0.5">Tanggal Lahir</p>
+                        <p class="text-gray-700">{{ $pengajuan->tanggal_lahir?->format('d M Y') ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-0.5">Jenis Kelamin</p>
+                        <p class="text-gray-700">{{ $pengajuan->jenis_kelamin === 'L' ? 'Laki-laki' : ($pengajuan->jenis_kelamin === 'P' ? 'Perempuan' : '-') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-0.5">Pekerjaan</p>
+                        <p class="text-gray-700">{{ $pengajuan->pekerjaan ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-gray-500 mb-0.5">Alamat</p>
+                        <p class="text-gray-700">{{ $pengajuan->alamat ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-0.5">Desa</p>
-                        <p class="text-gray-700">{{ $pengajuan->user->desa ?? '-' }}</p>
+                        <p class="text-gray-700">{{ $pengajuan->desa ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-0.5">RT / RW</p>
+                        <p class="text-gray-700">{{ $pengajuan->rt ?? '-' }} / {{ $pengajuan->rw ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -44,9 +64,15 @@
             @if($formDetail)
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <h3 class="text-sm font-semibold text-gray-700 mb-4">Detail Berkas</h3>
+                @php
+                    $fileFields = method_exists($formDetail, 'getFileDokumen')
+                        ? array_keys($formDetail->getFileDokumen())
+                        : [];
+                    $skipFields = array_merge(['id', 'pengajuan_id', 'created_at', 'updated_at'], $fileFields);
+                @endphp
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     @foreach($formDetail->getAttributes() as $key => $value)
-                        @if(!in_array($key, ['id', 'pengajuan_id', 'created_at', 'updated_at']) && !is_null($value))
+                        @if(!in_array($key, $skipFields) && !is_null($value))
                             <div>
                                 <p class="text-xs text-gray-500 mb-0.5 capitalize">{{ str_replace('_', ' ', $key) }}</p>
                                 <p class="text-gray-700">
@@ -116,7 +142,7 @@
             @endif
 
             {{-- Form Keputusan --}}
-            @if(in_array($pengajuan->status, ['diverifikasi_desa', 'diproses_kecamatan']))
+            @if(in_array($pengajuan->status, ['diverifikasi_desa', 'diverifikasi_kecamatan']))
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <h3 class="text-sm font-semibold text-gray-700 mb-4">Proses Pengajuan</h3>
 

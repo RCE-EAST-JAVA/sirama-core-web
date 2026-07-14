@@ -16,7 +16,7 @@ class AuthController extends Controller
     #[OA\Post(
         path: '/auth/register',
         summary: 'Registrasi warga baru',
-        description: 'Membuat akun warga baru dengan NIK sebagai username. Mengembalikan token Sanctum untuk autentikasi selanjutnya.',
+        description: 'Membuat akun warga baru dengan NIK sebagai username. Field profil (tanggal_lahir, jenis_kelamin, dll) bersifat opsional dan bisa dilengkapi nanti via update profile.',
         tags: ['Auth'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -28,6 +28,13 @@ class AuthController extends Controller
                     new OA\Property(property: 'no_whatsapp', type: 'string', maxLength: 20, example: '08123456789'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'password'),
                     new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'password'),
+                    new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', nullable: true, example: '1990-01-01'),
+                    new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P'], nullable: true),
+                    new OA\Property(property: 'pekerjaan', type: 'string', nullable: true, example: 'Wiraswasta'),
+                    new OA\Property(property: 'alamat', type: 'string', nullable: true, example: 'Jl. Merdeka No. 1'),
+                    new OA\Property(property: 'desa', type: 'string', nullable: true, example: 'Desa Sukosari Lor'),
+                    new OA\Property(property: 'rt', type: 'string', nullable: true, example: '001'),
+                    new OA\Property(property: 'rw', type: 'string', nullable: true, example: '002'),
                 ]
             )
         ),
@@ -47,18 +54,32 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $request->validate([
-            'nik'         => ['required', 'string', 'digits:16', 'unique:users'],
-            'name'        => ['required', 'string', 'max:255'],
-            'no_whatsapp' => ['required', 'string', 'max:20'],
-            'password'    => ['required', 'confirmed', Rules\Password::defaults()],
+            'nik'           => ['required', 'string', 'digits:16', 'unique:users'],
+            'name'          => ['required', 'string', 'max:255'],
+            'no_whatsapp'   => ['required', 'string', 'max:20'],
+            'password'      => ['required', 'confirmed', Rules\Password::defaults()],
+            'tanggal_lahir' => ['nullable', 'date'],
+            'jenis_kelamin' => ['nullable', 'string', 'in:L,P'],
+            'pekerjaan'     => ['nullable', 'string', 'max:255'],
+            'alamat'        => ['nullable', 'string', 'max:500'],
+            'desa'          => ['nullable', 'string', 'exists:desas,nama'],
+            'rt'            => ['nullable', 'string', 'max:10'],
+            'rw'            => ['nullable', 'string', 'max:10'],
         ]);
 
         $user = User::create([
-            'nik'         => $request->nik,
-            'name'        => $request->name,
-            'no_whatsapp' => $request->no_whatsapp,
-            'password'    => Hash::make($request->password),
-            'role'        => 'warga',
+            'nik'           => $request->nik,
+            'name'          => $request->name,
+            'no_whatsapp'   => $request->no_whatsapp,
+            'password'      => Hash::make($request->password),
+            'role'          => 'warga',
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'pekerjaan'     => $request->pekerjaan,
+            'alamat'        => $request->alamat,
+            'desa'          => $request->desa,
+            'rt'            => $request->rt,
+            'rw'            => $request->rw,
         ]);
 
         $token = $user->createToken('mobile')->plainTextToken;
@@ -67,11 +88,18 @@ class AuthController extends Controller
             'message' => 'Registrasi berhasil.',
             'token'   => $token,
             'user'    => [
-                'id'          => $user->id,
-                'nik'         => $user->nik,
-                'name'        => $user->name,
-                'no_whatsapp' => $user->no_whatsapp,
-                'role'        => $user->role,
+                'id'            => $user->id,
+                'nik'           => $user->nik,
+                'name'          => $user->name,
+                'no_whatsapp'   => $user->no_whatsapp,
+                'tanggal_lahir' => $user->tanggal_lahir?->format('Y-m-d'),
+                'jenis_kelamin' => $user->jenis_kelamin,
+                'pekerjaan'     => $user->pekerjaan,
+                'alamat'        => $user->alamat,
+                'desa'          => $user->desa,
+                'rt'            => $user->rt,
+                'rw'            => $user->rw,
+                'role'          => $user->role,
             ],
         ], 201);
     }

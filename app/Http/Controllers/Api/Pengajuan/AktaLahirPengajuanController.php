@@ -25,23 +25,10 @@ class AktaLahirPengajuanController extends BasePengajuanController
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     required: [
-                        'nama_lengkap', 'nik', 'no_whatsapp', 'tanggal_lahir', 'jenis_kelamin',
-                        'alamat', 'desa', 'rt', 'rw',
                         'nama_anak', 'tanggal_lahir_anak',
                         'file_sk_lahir', 'file_kk', 'file_ktp_ayah', 'file_ktp_ibu', 'file_surat_nikah',
                     ],
                     properties: [
-                        // Data diri pemohon
-                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Budi Santoso'),
-                        new OA\Property(property: 'nik', type: 'string', example: '3277010101900001'),
-                        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
-                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '1990-01-01'),
-                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
-                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true, example: 'Wiraswasta'),
-                        new OA\Property(property: 'alamat', type: 'string', example: 'Jl. Merdeka No. 1'),
-                        new OA\Property(property: 'desa', type: 'string', example: 'Desa Sukamaju'),
-                        new OA\Property(property: 'rt', type: 'string', example: '001'),
-                        new OA\Property(property: 'rw', type: 'string', example: '002'),
                         // Data spesifik Akta Lahir
                         new OA\Property(property: 'nama_anak', type: 'string', example: 'Rian Santoso'),
                         new OA\Property(property: 'tanggal_lahir_anak', type: 'string', format: 'date', example: '2024-03-10'),
@@ -65,21 +52,7 @@ class AktaLahirPengajuanController extends BasePengajuanController
         return DB::transaction(function () use ($request) {
             $user = Auth::user();
 
-            $pengajuan = Pengajuan::create([
-                'user_id'       => $user->id,
-                'jenis_layanan' => 'akta_kelahiran',
-                'status'        => 'berkas_diterima',
-                'no_whatsapp'   => $request->no_whatsapp   ?? $user->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap  ?? $user->name,
-                'nik'           => $request->nik            ?? $user->nik,
-                'tanggal_lahir' => $request->tanggal_lahir ?? $user->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin ?? $user->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan     ?? $user->pekerjaan,
-                'alamat'        => $request->alamat         ?? $user->alamat,
-                'desa'          => $request->desa           ?? $user->desa,
-                'rt'            => $request->rt             ?? $user->rt,
-                'rw'            => $request->rw             ?? $user->rw,
-            ]);
+            $pengajuan = Pengajuan::create($this->buildPengajuanData($user, 'akta_kelahiran'));
 
             $formData = $request->only(['nama_anak', 'tanggal_lahir_anak']);
 
@@ -145,23 +118,11 @@ class AktaLahirPengajuanController extends BasePengajuanController
         $this->authorizeWarga($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
-            $pengajuan->update([
-                'no_whatsapp'   => $request->no_whatsapp   ?? $pengajuan->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap  ?? $pengajuan->nama_lengkap,
-                'nik'           => $request->nik            ?? $pengajuan->nik,
-                'tanggal_lahir' => $request->tanggal_lahir ?? $pengajuan->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin ?? $pengajuan->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan     ?? $pengajuan->pekerjaan,
-                'alamat'        => $request->alamat         ?? $pengajuan->alamat,
-                'desa'          => $request->desa           ?? $pengajuan->desa,
-                'rt'            => $request->rt             ?? $pengajuan->rt,
-                'rw'            => $request->rw             ?? $pengajuan->rw,
-            ]);
-
             $formData = $request->only(['nama_anak', 'tanggal_lahir_anak']);
 
             foreach (['file_sk_lahir', 'file_kk', 'file_ktp_ayah', 'file_ktp_ibu', 'file_surat_nikah'] as $field) {
                 if ($request->hasFile($field)) {
+                    $this->deleteFile($pengajuan->formAktaLahir?->$field);
                     $formData[$field] = $this->storeFile($request->file($field), 'pengajuan/akta-lahir');
                 }
             }

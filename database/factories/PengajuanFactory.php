@@ -15,7 +15,7 @@ class PengajuanFactory extends Factory
         return [
             'user_id' => User::factory(),
             'jenis_layanan' => fake()->randomElement(["kia","3_in_1","kk_penambahan","kk_pengurangan","kk_perbaikan","akta_kelahiran","akta_kematian"]),
-            'status' => fake()->randomElement(["berkas_diterima","diverifikasi_desa","diproses_kecamatan","selesai"]),
+            'status' => fake()->randomElement(["berkas_diterima","diverifikasi_desa","diverifikasi_kecamatan","selesai"]),
             'lokasi_dokumen' => fake()->word(),
             'no_whatsapp' => fake()->word(),
         ];

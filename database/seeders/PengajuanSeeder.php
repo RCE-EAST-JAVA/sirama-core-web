@@ -77,11 +77,11 @@ class PengajuanSeeder extends Seeder
             'catatan'        => 'Berkas lengkap. Diteruskan ke kecamatan.',
         ]);
 
-        // 3. Pengajuan KK Penambahan — status: diproses_kecamatan
+        // 3. Pengajuan KK Penambahan — status: diverifikasi_kecamatan
         $p3 = Pengajuan::create([
             'user_id'       => $warga[2]->id,
             'jenis_layanan' => 'kk_penambahan',
-            'status'        => 'diproses_kecamatan',
+            'status'        => 'diverifikasi_kecamatan',
             'no_whatsapp'   => $warga[2]->no_whatsapp,
         ]);
         FormKkPenambahan::create([
@@ -170,7 +170,7 @@ class PengajuanSeeder extends Seeder
         ]);
         RiwayatStatus::create([
             'pengajuan_id'   => $p5->id,
-            'status_riwayat' => 'diproses_kecamatan',
+            'status_riwayat' => 'diverifikasi_kecamatan',
             'catatan'        => 'Sedang diproses.',
         ]);
         RiwayatStatus::create([

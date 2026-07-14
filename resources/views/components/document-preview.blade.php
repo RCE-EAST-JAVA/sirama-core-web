@@ -32,8 +32,8 @@
                 const res = await fetch(this.dataUrl, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
                 });
-                if (!res.ok) throw new Error('Gagal memuat file (status ' + res.status + ')');
                 const json = await res.json();
+                if (!res.ok) throw new Error(json.error || 'Gagal memuat file (status ' + res.status + ')');
                 this.src = json.data;
             } catch (e) {
                 this.error = e.message;

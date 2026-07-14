@@ -24,21 +24,13 @@ class KiaPengajuanController extends BasePengajuanController
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
-                    required: ['nama_lengkap', 'nik', 'no_whatsapp', 'tanggal_lahir', 'jenis_kelamin', 'alamat', 'desa', 'rt', 'rw', 'tempat_lahir', 'nama_kepala_keluarga', 'agama', 'kewarganegaraan', 'file_akta_kelahiran', 'file_kk', 'file_surat_nikah', 'file_foto_anak'],
+                    required: ['nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'nama_kepala_keluarga', 'agama', 'kewarganegaraan', 'file_akta_kelahiran', 'file_kk', 'file_surat_nikah', 'file_foto_anak'],
                     properties: [
-                        // Data diri pemohon
-                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Budi Santoso'),
-                        new OA\Property(property: 'nik', type: 'string', example: '3277010101900001'),
-                        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
-                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '1990-01-01'),
-                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
-                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true, example: 'Wiraswasta'),
-                        new OA\Property(property: 'alamat', type: 'string', example: 'Jl. Merdeka No. 1'),
-                        new OA\Property(property: 'desa', type: 'string', example: 'Desa Sukamaju'),
-                        new OA\Property(property: 'rt', type: 'string', example: '001'),
-                        new OA\Property(property: 'rw', type: 'string', example: '002'),
                         // Data spesifik KIA (data anak)
+                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Budi Anak Santoso'),
                         new OA\Property(property: 'tempat_lahir', type: 'string', example: 'Bandung'),
+                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '2024-01-01'),
+                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
                         new OA\Property(property: 'nama_kepala_keluarga', type: 'string', example: 'Santoso'),
                         new OA\Property(property: 'agama', type: 'string', example: 'Islam'),
                         new OA\Property(property: 'kewarganegaraan', type: 'string', example: 'WNI'),
@@ -70,21 +62,7 @@ class KiaPengajuanController extends BasePengajuanController
         return DB::transaction(function () use ($request) {
             $user = Auth::user();
 
-            $pengajuan = Pengajuan::create([
-                'user_id'       => $user->id,
-                'jenis_layanan' => 'kia',
-                'status'        => 'berkas_diterima',
-                'no_whatsapp'   => $request->no_whatsapp   ?? $user->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap  ?? $user->name,
-                'nik'           => $request->nik            ?? $user->nik,
-                'tanggal_lahir' => $request->tanggal_lahir ?? $user->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin ?? $user->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan     ?? $user->pekerjaan,
-                'alamat'        => $request->alamat         ?? $user->alamat,
-                'desa'          => $request->desa           ?? $user->desa,
-                'rt'            => $request->rt             ?? $user->rt,
-                'rw'            => $request->rw             ?? $user->rw,
-            ]);
+            $pengajuan = Pengajuan::create($this->buildPengajuanData($user, 'kia'));
 
             FormKia::create([
                 'pengajuan_id'         => $pengajuan->id,
@@ -108,7 +86,7 @@ class KiaPengajuanController extends BasePengajuanController
         });
     }
 
-    #[OA\Put(
+    #[OA\Post(
         path: '/pengajuan/kia/{id}',
         summary: 'Revisi pengajuan KIA',
         description: 'Mengupdate data form dan/atau dokumen pengajuan KIA. File yang tidak dikirim tidak akan diubah.',
@@ -123,19 +101,11 @@ class KiaPengajuanController extends BasePengajuanController
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     properties: [
-                        // Data diri pemohon
+                        // Data spesifik KIA (data anak)
                         new OA\Property(property: 'nama_lengkap', type: 'string'),
-                        new OA\Property(property: 'nik', type: 'string'),
-                        new OA\Property(property: 'no_whatsapp', type: 'string'),
+                        new OA\Property(property: 'tempat_lahir', type: 'string'),
                         new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date'),
                         new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
-                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true),
-                        new OA\Property(property: 'alamat', type: 'string'),
-                        new OA\Property(property: 'desa', type: 'string'),
-                        new OA\Property(property: 'rt', type: 'string'),
-                        new OA\Property(property: 'rw', type: 'string'),
-                        // Data spesifik KIA (data anak)
-                        new OA\Property(property: 'tempat_lahir', type: 'string'),
                         new OA\Property(property: 'nama_kepala_keluarga', type: 'string'),
                         new OA\Property(property: 'agama', type: 'string'),
                         new OA\Property(property: 'kewarganegaraan', type: 'string'),
@@ -159,19 +129,6 @@ class KiaPengajuanController extends BasePengajuanController
         $this->authorizeWarga($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
-            $pengajuan->update([
-                'no_whatsapp'   => $request->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap,
-                'nik'           => $request->nik,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan,
-                'alamat'        => $request->alamat,
-                'desa'          => $request->desa,
-                'rt'            => $request->rt,
-                'rw'            => $request->rw,
-            ]);
-
             $formData = $request->only([
                 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
                 'jenis_kelamin', 'nama_kepala_keluarga', 'agama', 'kewarganegaraan',
@@ -179,6 +136,7 @@ class KiaPengajuanController extends BasePengajuanController
 
             foreach (['file_akta_kelahiran', 'file_kk', 'file_surat_nikah', 'file_foto_anak'] as $field) {
                 if ($request->hasFile($field)) {
+                    $this->deleteFile($pengajuan->formKia?->$field);
                     $formData[$field] = $this->storeFile($request->file($field), 'pengajuan/kia');
                 }
             }

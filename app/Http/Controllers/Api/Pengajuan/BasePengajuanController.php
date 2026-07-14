@@ -27,7 +27,7 @@ abstract class BasePengajuanController extends Controller
                 description: 'Filter berdasarkan status pengajuan',
                 schema: new OA\Schema(
                     type: 'string',
-                    enum: ['berkas_diterima', 'ditolak_desa', 'diverifikasi_desa', 'ditolak_kecamatan', 'diproses_kecamatan', 'selesai']
+                    enum: ['berkas_diterima', 'ditolak_desa', 'diverifikasi_desa', 'ditolak_kecamatan', 'diverifikasi_kecamatan', 'selesai']
                 )
             ),
         ],
@@ -54,6 +54,73 @@ abstract class BasePengajuanController extends Controller
                 'current_page' => $pengajuans->currentPage(),
                 'last_page'    => $pengajuans->lastPage(),
                 'total'        => $pengajuans->total(),
+            ],
+        ]);
+    }
+
+    #[OA\Get(
+        path: '/pengajuan/stats',
+        summary: 'Statistik pengajuan milik warga',
+        description: 'Mengembalikan jumlah pengajuan milik warga yang sedang login, dikelompokkan per status beserta labelnya.',
+        tags: ['Pengajuan'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Statistik pengajuan per status',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'total', type: 'integer', example: 7),
+                                new OA\Property(
+                                    property: 'statuses',
+                                    type: 'array',
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: 'status', type: 'string', example: 'berkas_diterima'),
+                                            new OA\Property(property: 'label', type: 'string', example: 'Berkas Diterima'),
+                                            new OA\Property(property: 'jumlah', type: 'integer', example: 2),
+                                        ]
+                                    )
+                                ),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function stats(): JsonResponse
+    {
+        $statusLabels = [
+            'berkas_diterima'        => 'Berkas Diterima',
+            'diverifikasi_desa'      => 'Diverifikasi Desa',
+            'ditolak_desa'           => 'Ditolak Desa',
+            'diverifikasi_kecamatan' => 'Diverifikasi Kecamatan',
+            'ditolak_kecamatan'      => 'Ditolak Kecamatan',
+            'selesai'                => 'Selesai',
+        ];
+
+        $counts = Pengajuan::selectRaw('status, count(*) as jumlah')
+            ->where('user_id', Auth::id())
+            ->groupBy('status')
+            ->pluck('jumlah', 'status')
+            ->toArray();
+
+        $statuses = array_map(fn($status, $label) => [
+            'status' => $status,
+            'label'  => $label,
+            'jumlah' => (int) ($counts[$status] ?? 0),
+        ], array_keys($statusLabels), $statusLabels);
+
+        return response()->json([
+            'data' => [
+                'total'    => array_sum(array_column($statuses, 'jumlah')),
+                'statuses' => $statuses,
             ],
         ]);
     }
@@ -127,6 +194,28 @@ abstract class BasePengajuanController extends Controller
     }
 
     /**
+     * Bangun data identitas pemohon dari profil user sebagai snapshot saat pengajuan dibuat.
+     */
+    protected function buildPengajuanData(\App\Models\User $user, string $jenisLayanan): array
+    {
+        return [
+            'user_id'       => $user->id,
+            'jenis_layanan' => $jenisLayanan,
+            'status'        => 'berkas_diterima',
+            'nama_lengkap'  => $user->name,
+            'nik'           => $user->nik,
+            'no_whatsapp'   => $user->no_whatsapp,
+            'tanggal_lahir' => $user->tanggal_lahir,
+            'jenis_kelamin' => $user->jenis_kelamin,
+            'pekerjaan'     => $user->pekerjaan,
+            'alamat'        => $user->alamat,
+            'desa'          => $user->desa,
+            'rt'            => $user->rt,
+            'rw'            => $user->rw,
+        ];
+    }
+
+    /**
      * Pastikan pengajuan milik user yang sedang login.
      */
     protected function authorizeWarga(Pengajuan $pengajuan): void
@@ -137,10 +226,20 @@ abstract class BasePengajuanController extends Controller
     }
 
     /**
-     * Simpan file ke storage dan kembalikan path-nya.
+     * Simpan file ke storage lokal (private) dan kembalikan path-nya.
      */
     protected function storeFile(\Illuminate\Http\UploadedFile $file, string $folder): string
     {
-        return $file->store($folder, 'public');
+        return $file->store($folder, 'local');
+    }
+
+    /**
+     * Hapus file lama dari storage lokal (private) jika ada.
+     */
+    protected function deleteFile(?string $path): void
+    {
+        if ($path && \Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($path);
+        }
     }
 }

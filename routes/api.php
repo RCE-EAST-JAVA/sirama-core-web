@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Pengajuan - shared endpoints (index, show, status)
     // Gunakan KiaPengajuanController sebagai concrete class untuk shared methods
+    Route::get('/pengajuan/stats',               [KiaPengajuanController::class, 'stats']);
     Route::get('/pengajuan',                    [KiaPengajuanController::class, 'index']);
     Route::get('/pengajuan/{pengajuan}',         [KiaPengajuanController::class, 'show']);
     Route::get('/pengajuan/{pengajuan}/status',  [KiaPengajuanController::class, 'status']);
@@ -68,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pengajuan/akta-kematian/{pengajuan}',   [AktaKematianPengajuanController::class, 'update']);
 
     // Profile
-    Route::get('/profile',  [ProfileController::class, 'show']);
-    Route::post('/profile', [ProfileController::class, 'update']);
+    Route::get('/profile',      [ProfileController::class, 'show']);
+    Route::post('/profile',     [ProfileController::class, 'update']);
+    Route::get('/profile/foto', [ProfileController::class, 'foto'])->name('api.profile.foto');
 });

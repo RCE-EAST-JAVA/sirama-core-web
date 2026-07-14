@@ -15,7 +15,7 @@ class DashboardController extends Controller
             'total_pengajuan'      => Pengajuan::count(),
             'berkas_diterima'      => Pengajuan::where('status', 'berkas_diterima')->count(),
             'diverifikasi_desa'    => Pengajuan::where('status', 'diverifikasi_desa')->count(),
-            'diproses_kecamatan'   => Pengajuan::where('status', 'diproses_kecamatan')->count(),
+            'diverifikasi_kecamatan' => Pengajuan::where('status', 'diverifikasi_kecamatan')->count(),
             'selesai'              => Pengajuan::where('status', 'selesai')->count(),
             'ditolak_desa'         => Pengajuan::where('status', 'ditolak_desa')->count(),
             'ditolak_kecamatan'    => Pengajuan::where('status', 'ditolak_kecamatan')->count(),

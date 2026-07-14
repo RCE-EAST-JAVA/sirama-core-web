@@ -43,11 +43,43 @@ class DocumentController extends Controller
     }
 
     /**
-     * Return file sebagai base64 JSON â€” IDM tidak bisa intercept data URL
+     * Return file sebagai base64 JSON – IDM tidak bisa intercept data URL
      */
     public function data(Request $request, Pengajuan $pengajuan, string $field): JsonResponse
     {
-        $filePath = $this->resolveFilePath($pengajuan, $field);
+        $user = auth()->user();
+
+        // Permission check berdasarkan role
+        if ($user->role === 'warga') {
+            if ($pengajuan->user_id !== $user->id) abort(403);
+        } elseif ($user->role === 'admin_desa') {
+            if ($pengajuan->user->desa !== $user->desa) abort(403);
+        }
+
+        $formDetail = $pengajuan->getFormDetail();
+        if (!$formDetail) {
+            return response()->json(['error' => 'Form detail tidak ditemukan'], 404);
+        }
+
+        if (!array_key_exists($field, $formDetail->getAttributes())) {
+            return response()->json(['error' => 'Field tidak ditemukan'], 404);
+        }
+
+        $filePath = $formDetail->$field;
+        if (!$filePath) {
+            return response()->json(['error' => 'File belum diupload'], 404);
+        }
+
+        if (is_array($filePath)) {
+            $filePath = $filePath[0] ?? null;
+            if (!$filePath) {
+                return response()->json(['error' => 'File belum diupload'], 404);
+            }
+        }
+
+        if (!Storage::disk('local')->exists($filePath)) {
+            return response()->json(['error' => 'File tidak ditemukan di server. Mungkin perlu diupload ulang.'], 404);
+        }
 
         $content  = Storage::disk('local')->get($filePath);
         $mimeType = Storage::disk('local')->mimeType($filePath);

@@ -13,7 +13,7 @@ class DashboardController extends Controller
         $stats = [
             'total'                => Pengajuan::count(),
             'menunggu_verifikasi'  => Pengajuan::where('status', 'diverifikasi_desa')->count(),
-            'diproses'             => Pengajuan::where('status', 'diproses_kecamatan')->count(),
+            'diproses'             => Pengajuan::where('status', 'diverifikasi_kecamatan')->count(),
             'ditolak'              => Pengajuan::where('status', 'ditolak_kecamatan')->count(),
             'selesai'              => Pengajuan::where('status', 'selesai')->count(),
         ];
@@ -24,7 +24,7 @@ class DashboardController extends Controller
             ->pluck('total', 'jenis_layanan');
 
         $pengajuan_terbaru = Pengajuan::with('user')
-            ->whereIn('status', ['diverifikasi_desa', 'diproses_kecamatan'])
+            ->whereIn('status', ['diverifikasi_desa', 'diverifikasi_kecamatan'])
             ->latest()
             ->take(10)
             ->get();

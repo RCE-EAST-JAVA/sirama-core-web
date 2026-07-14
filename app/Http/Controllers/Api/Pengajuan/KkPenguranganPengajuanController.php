@@ -25,23 +25,10 @@ class KkPenguranganPengajuanController extends BasePengajuanController
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     required: [
-                        'nama_lengkap', 'nik', 'no_whatsapp', 'tanggal_lahir', 'jenis_kelamin',
-                        'alamat', 'desa', 'rt', 'rw',
                         'alasan_pengurangan', 'nama_lengkap_anggota', 'alamat_lengkap_anggota', 'nik_anggota',
                         'file_kk_asli', 'file_ktp_asli', 'file_sk_pindah_mati',
                     ],
                     properties: [
-                        // Data diri pemohon
-                        new OA\Property(property: 'nama_lengkap', type: 'string', example: 'Budi Santoso'),
-                        new OA\Property(property: 'nik', type: 'string', example: '3277010101900001'),
-                        new OA\Property(property: 'no_whatsapp', type: 'string', example: '08123456789'),
-                        new OA\Property(property: 'tanggal_lahir', type: 'string', format: 'date', example: '1990-01-01'),
-                        new OA\Property(property: 'jenis_kelamin', type: 'string', enum: ['L', 'P']),
-                        new OA\Property(property: 'pekerjaan', type: 'string', nullable: true, example: 'Wiraswasta'),
-                        new OA\Property(property: 'alamat', type: 'string', example: 'Jl. Merdeka No. 1'),
-                        new OA\Property(property: 'desa', type: 'string', example: 'Desa Sukamaju'),
-                        new OA\Property(property: 'rt', type: 'string', example: '001'),
-                        new OA\Property(property: 'rw', type: 'string', example: '002'),
                         // Data spesifik KK Pengurangan (data anggota yang dikurangi)
                         new OA\Property(property: 'alasan_pengurangan', type: 'string'),
                         new OA\Property(property: 'nama_lengkap_anggota', type: 'string'),
@@ -65,21 +52,7 @@ class KkPenguranganPengajuanController extends BasePengajuanController
         return DB::transaction(function () use ($request) {
             $user = Auth::user();
 
-            $pengajuan = Pengajuan::create([
-                'user_id'       => $user->id,
-                'jenis_layanan' => 'kk_pengurangan',
-                'status'        => 'berkas_diterima',
-                'no_whatsapp'   => $request->no_whatsapp   ?? $user->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap  ?? $user->name,
-                'nik'           => $request->nik            ?? $user->nik,
-                'tanggal_lahir' => $request->tanggal_lahir ?? $user->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin ?? $user->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan     ?? $user->pekerjaan,
-                'alamat'        => $request->alamat         ?? $user->alamat,
-                'desa'          => $request->desa           ?? $user->desa,
-                'rt'            => $request->rt             ?? $user->rt,
-                'rw'            => $request->rw             ?? $user->rw,
-            ]);
+            $pengajuan = Pengajuan::create($this->buildPengajuanData($user, 'kk_pengurangan'));
 
             FormKkPengurangan::create([
                 'pengajuan_id'           => $pengajuan->id,
@@ -99,7 +72,7 @@ class KkPenguranganPengajuanController extends BasePengajuanController
         });
     }
 
-    #[OA\Put(
+    #[OA\Post(
         path: '/pengajuan/kk-pengurangan/{id}',
         summary: 'Revisi pengajuan KK Pengurangan',
         description: 'Mengupdate data form dan/atau dokumen pengajuan KK Pengurangan. File yang tidak dikirim tidak akan diubah.',
@@ -108,6 +81,23 @@ class KkPenguranganPengajuanController extends BasePengajuanController
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    properties: [
+                        new OA\Property(property: 'alasan_pengurangan', type: 'string'),
+                        new OA\Property(property: 'nama_lengkap_anggota', type: 'string'),
+                        new OA\Property(property: 'alamat_lengkap_anggota', type: 'string'),
+                        new OA\Property(property: 'nik_anggota', type: 'string'),
+                        new OA\Property(property: 'file_kk_asli', type: 'string', format: 'binary'),
+                        new OA\Property(property: 'file_ktp_asli', type: 'string', format: 'binary'),
+                        new OA\Property(property: 'file_sk_pindah_mati', type: 'string', format: 'binary'),
+                    ]
+                )
+            )
+        ),
         responses: [
             new OA\Response(response: 200, description: 'Pengajuan KK Pengurangan berhasil diupdate'),
             new OA\Response(response: 403, description: 'Forbidden'),
@@ -120,19 +110,6 @@ class KkPenguranganPengajuanController extends BasePengajuanController
         $this->authorizeWarga($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
-            $pengajuan->update([
-                'no_whatsapp'   => $request->no_whatsapp,
-                'nama_lengkap'  => $request->nama_lengkap,
-                'nik'           => $request->nik,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'jenis_kelamin' => $request->jenis_kelamin,
-                'pekerjaan'     => $request->pekerjaan,
-                'alamat'        => $request->alamat,
-                'desa'          => $request->desa,
-                'rt'            => $request->rt,
-                'rw'            => $request->rw,
-            ]);
-
             $formData = $request->only([
                 'alasan_pengurangan', 'nama_lengkap_anggota',
                 'alamat_lengkap_anggota', 'nik_anggota',
@@ -140,6 +117,7 @@ class KkPenguranganPengajuanController extends BasePengajuanController
 
             foreach (['file_kk_asli', 'file_ktp_asli', 'file_sk_pindah_mati'] as $field) {
                 if ($request->hasFile($field)) {
+                    $this->deleteFile($pengajuan->formKkPengurangan?->$field);
                     $formData[$field] = $this->storeFile($request->file($field), 'pengajuan/kk-pengurangan');
                 }
             }

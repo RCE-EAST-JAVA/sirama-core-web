@@ -35,12 +35,15 @@ Route::middleware('auth')->group(function () {
 // Dokumen - serve file dengan auth + permission check
 Route::get('/dokumen/{pengajuan}/{field}', [DocumentController::class, 'show'])
     ->middleware('auth')
+    ->where('pengajuan', '[0-9]+')
     ->name('dokumen.show');
 Route::get('/dokumen/{pengajuan}/{field}/data', [DocumentController::class, 'data'])
     ->middleware('auth')
+    ->where('pengajuan', '[0-9]+')
     ->name('dokumen.data');
 Route::get('/dokumen/{pengajuan}/softfile/{index}', [DocumentController::class, 'softfile'])
     ->middleware('auth')
+    ->where(['pengajuan' => '[0-9]+', 'index' => '[0-9]+'])
     ->name('dokumen.softfile');
 
 /*

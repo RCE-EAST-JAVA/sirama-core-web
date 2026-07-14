@@ -16,18 +16,6 @@ class StoreKkPerbaikanRequest extends FormRequest
         $required = $this->isMethod('POST') ? 'required' : 'nullable';
 
         return [
-            // Data diri pemohon — nullable, fallback ke profil user jika kosong
-            'nama_lengkap'                 => ['nullable', 'string', 'max:255'],
-            'nik'                          => ['nullable', 'string', 'digits:16'],
-            'no_whatsapp'                  => ['nullable', 'string', 'max:20'],
-            'tanggal_lahir'                => ['nullable', 'date'],
-            'jenis_kelamin'                => ['nullable', 'in:L,P'],
-            'pekerjaan'                    => ['nullable', 'string', 'max:255'],
-            'alamat'                       => ['nullable', 'string', 'max:500'],
-            'desa'                         => ['nullable', 'string', 'exists:desas,nama'],
-            'rt'                           => ['nullable', 'string', 'max:10'],
-            'rw'                           => ['nullable', 'string', 'max:10'],
-
             // Data spesifik KK Perbaikan — disimpan ke tabel form_kk_perbaikans
             'jenis_perbaikan_id'           => [$required, 'integer', 'exists:master_jenis_perbaikan_kks,id'],
             'nama_kepala_keluarga'         => [$required, 'string', 'max:255'],
@@ -45,18 +33,6 @@ class StoreKkPerbaikanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nama_lengkap.required'                   => 'Nama lengkap wajib diisi.',
-            'nik.required'                            => 'NIK wajib diisi.',
-            'nik.digits'                              => 'NIK harus 16 digit.',
-            'no_whatsapp.required'                    => 'Nomor WhatsApp wajib diisi.',
-            'tanggal_lahir.required'                  => 'Tanggal lahir wajib diisi.',
-            'jenis_kelamin.required'                  => 'Jenis kelamin wajib dipilih.',
-            'jenis_kelamin.in'                        => 'Jenis kelamin harus L atau P.',
-            'alamat.required'                         => 'Alamat wajib diisi.',
-            'desa.required'                           => 'Desa/Kelurahan wajib diisi.',
-            'rt.required'                             => 'RT wajib diisi.',
-            'rw.required'                             => 'RW wajib diisi.',
-
             'jenis_perbaikan_id.required'             => 'Jenis perbaikan wajib dipilih.',
             'jenis_perbaikan_id.exists'               => 'Jenis perbaikan tidak valid.',
             'nama_kepala_keluarga.required'           => 'Nama kepala keluarga wajib diisi.',

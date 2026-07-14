@@ -19,20 +19,11 @@ class StoreKiaRequest extends FormRequest
             : ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
 
         return [
-            // Data diri pemohon — nullable, fallback ke profil user jika kosong
-            'nama_lengkap'         => ['nullable', 'string', 'max:255'],
-            'nik'                  => ['nullable', 'string', 'digits:16'],
-            'no_whatsapp'          => ['nullable', 'string', 'max:20'],
-            'tanggal_lahir'        => ['nullable', 'date'],
-            'jenis_kelamin'        => ['nullable', 'in:L,P'],
-            'pekerjaan'            => ['nullable', 'string', 'max:255'],
-            'alamat'               => ['nullable', 'string', 'max:500'],
-            'desa'                 => ['nullable', 'string', 'exists:desas,nama'],
-            'rt'                   => ['nullable', 'string', 'max:10'],
-            'rw'                   => ['nullable', 'string', 'max:10'],
-
             // Data spesifik KIA — disimpan ke tabel form_kias
+            'nama_lengkap'         => [$required, 'string', 'max:255'],
             'tempat_lahir'         => [$required, 'string', 'max:255'],
+            'tanggal_lahir'        => [$required, 'date'],
+            'jenis_kelamin'        => [$required, 'string', 'in:L,P'],
             'nama_kepala_keluarga' => [$required, 'string', 'max:255'],
             'agama'                => [$required, 'string', 'max:50'],
             'kewarganegaraan'      => [$required, 'string', 'max:50'],
@@ -47,19 +38,11 @@ class StoreKiaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nama_lengkap.required'         => 'Nama lengkap wajib diisi.',
-            'nik.required'                  => 'NIK wajib diisi.',
-            'nik.digits'                    => 'NIK harus 16 digit.',
-            'no_whatsapp.required'          => 'Nomor WhatsApp wajib diisi.',
-            'tanggal_lahir.required'        => 'Tanggal lahir wajib diisi.',
-            'jenis_kelamin.required'        => 'Jenis kelamin wajib dipilih.',
-            'jenis_kelamin.in'              => 'Jenis kelamin harus L atau P.',
-            'alamat.required'               => 'Alamat wajib diisi.',
-            'desa.required'                 => 'Desa/Kelurahan wajib diisi.',
-            'rt.required'                   => 'RT wajib diisi.',
-            'rw.required'                   => 'RW wajib diisi.',
-
+            'nama_lengkap.required'         => 'Nama lengkap anak wajib diisi.',
             'tempat_lahir.required'         => 'Tempat lahir wajib diisi.',
+            'tanggal_lahir.required'        => 'Tanggal lahir anak wajib diisi.',
+            'jenis_kelamin.required'        => 'Jenis kelamin anak wajib dipilih.',
+            'jenis_kelamin.in'              => 'Jenis kelamin harus L atau P.',
             'nama_kepala_keluarga.required' => 'Nama kepala keluarga wajib diisi.',
             'agama.required'                => 'Agama wajib diisi.',
             'kewarganegaraan.required'      => 'Kewarganegaraan wajib diisi.',

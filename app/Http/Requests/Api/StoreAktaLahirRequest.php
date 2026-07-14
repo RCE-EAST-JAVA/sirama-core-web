@@ -19,18 +19,6 @@ class StoreAktaLahirRequest extends FormRequest
             : ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'];
 
         return [
-            // Data diri pemohon — nullable, fallback ke profil user jika kosong
-            'nama_lengkap'       => ['nullable', 'string', 'max:255'],
-            'nik'                => ['nullable', 'string', 'digits:16'],
-            'no_whatsapp'        => ['nullable', 'string', 'max:20'],
-            'tanggal_lahir'      => ['nullable', 'date'],
-            'jenis_kelamin'      => ['nullable', 'in:L,P'],
-            'pekerjaan'          => ['nullable', 'string', 'max:255'],
-            'alamat'             => ['nullable', 'string', 'max:500'],
-            'desa'               => ['nullable', 'string', 'exists:desas,nama'],
-            'rt'                 => ['nullable', 'string', 'max:10'],
-            'rw'                 => ['nullable', 'string', 'max:10'],
-
             // Data spesifik Akta Lahir — disimpan ke tabel form_akta_lahirs
             'nama_anak'          => [$required, 'string', 'max:255'],
             'tanggal_lahir_anak' => [$required, 'date'],
@@ -46,18 +34,6 @@ class StoreAktaLahirRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nama_lengkap.required'       => 'Nama lengkap wajib diisi.',
-            'nik.required'                => 'NIK wajib diisi.',
-            'nik.digits'                  => 'NIK harus 16 digit.',
-            'no_whatsapp.required'        => 'Nomor WhatsApp wajib diisi.',
-            'tanggal_lahir.required'      => 'Tanggal lahir wajib diisi.',
-            'jenis_kelamin.required'      => 'Jenis kelamin wajib dipilih.',
-            'jenis_kelamin.in'            => 'Jenis kelamin harus L atau P.',
-            'alamat.required'             => 'Alamat wajib diisi.',
-            'desa.required'               => 'Desa/Kelurahan wajib diisi.',
-            'rt.required'                 => 'RT wajib diisi.',
-            'rw.required'                 => 'RW wajib diisi.',
-
             'nama_anak.required'          => 'Nama anak wajib diisi.',
             'tanggal_lahir_anak.required' => 'Tanggal lahir anak wajib diisi.',
 

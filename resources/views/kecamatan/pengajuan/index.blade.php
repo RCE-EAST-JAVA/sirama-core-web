@@ -8,7 +8,7 @@
                 <select name="status" class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Perlu Tindak Lanjut</option>
                     <option value="diverifikasi_desa"   {{ request('status') === 'diverifikasi_desa'   ? 'selected' : '' }}>Diverifikasi Desa</option>
-                    <option value="diproses_kecamatan"  {{ request('status') === 'diproses_kecamatan'  ? 'selected' : '' }}>Diproses Kecamatan</option>
+                    <option value="diverifikasi_kecamatan"  {{ request('status') === 'diverifikasi_kecamatan'  ? 'selected' : '' }}>Diverifikasi Kecamatan</option>
                     <option value="ditolak_kecamatan"   {{ request('status') === 'ditolak_kecamatan'   ? 'selected' : '' }}>Ditolak Kecamatan</option>
                     <option value="selesai"             {{ request('status') === 'selesai'             ? 'selected' : '' }}>Selesai</option>
                 </select>
