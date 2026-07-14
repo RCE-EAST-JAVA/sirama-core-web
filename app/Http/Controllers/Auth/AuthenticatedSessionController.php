@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
             'admin_aplikasi'   => route('admin.dashboard', absolute: false),
             'admin_desa'       => route('desa.dashboard', absolute: false),
             'admin_kecamatan'  => route('kecamatan.dashboard', absolute: false),
-            default            => route('dashboard', absolute: false),
+            default            => route('login', absolute: false),
         };
 
         return redirect()->intended($destination);

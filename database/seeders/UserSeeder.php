@@ -11,8 +11,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Admin Aplikasi
-        User::create([
-            'nik'         => '0000000000000001',
+        User::firstOrCreate(['nik' => '0000000000000001'], [
             'name'        => 'Admin Aplikasi',
             'no_whatsapp' => '081200000001',
             'password'    => Hash::make('password'),
@@ -21,8 +20,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Admin Kecamatan
-        User::create([
-            'nik'         => '0000000000000002',
+        User::firstOrCreate(['nik' => '0000000000000002'], [
             'name'        => 'Admin Kecamatan Sukosari',
             'no_whatsapp' => '081200000002',
             'password'    => Hash::make('password'),
@@ -38,8 +36,7 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($desaList as $desa) {
-            User::create([
-                'nik'         => $desa['nik'],
+            User::firstOrCreate(['nik' => $desa['nik']], [
                 'name'        => $desa['name'],
                 'no_whatsapp' => $desa['no_wa'],
                 'password'    => Hash::make('password'),
@@ -58,8 +55,7 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($wargaList as $warga) {
-            User::create([
-                'nik'         => $warga['nik'],
+            User::firstOrCreate(['nik' => $warga['nik']], [
                 'name'        => $warga['name'],
                 'no_whatsapp' => $warga['no_wa'],
                 'password'    => Hash::make('password'),

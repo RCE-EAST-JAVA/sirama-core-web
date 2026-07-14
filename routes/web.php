@@ -24,10 +24,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Dashboard warga (Breeze default, akan digunakan sementara)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
 
 // Profile (Breeze)
 Route::middleware('auth')->group(function () {

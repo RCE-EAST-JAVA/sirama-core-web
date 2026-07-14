@@ -9,14 +9,33 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pengajuans', function (Blueprint $table) {
-            // nama_lengkap dan nik sudah ada — hanya tambah kolom baru
-            $table->date('tanggal_lahir')->nullable()->after('nik');
-            $table->enum('jenis_kelamin', ['L', 'P'])->nullable()->after('tanggal_lahir');
-            $table->string('pekerjaan')->nullable()->after('jenis_kelamin');
-            $table->text('alamat')->nullable()->after('pekerjaan');
-            $table->string('desa')->nullable()->after('alamat');
-            $table->string('rt')->nullable()->after('desa');
-            $table->string('rw')->nullable()->after('rt');
+            if (!Schema::hasColumn('pengajuans', 'nama_lengkap')) {
+                $table->string('nama_lengkap')->nullable()->after('no_whatsapp');
+            }
+            if (!Schema::hasColumn('pengajuans', 'nik')) {
+                $table->string('nik')->nullable()->after('nama_lengkap');
+            }
+            if (!Schema::hasColumn('pengajuans', 'tanggal_lahir')) {
+                $table->date('tanggal_lahir')->nullable()->after('nik');
+            }
+            if (!Schema::hasColumn('pengajuans', 'jenis_kelamin')) {
+                $table->enum('jenis_kelamin', ['L', 'P'])->nullable()->after('tanggal_lahir');
+            }
+            if (!Schema::hasColumn('pengajuans', 'pekerjaan')) {
+                $table->string('pekerjaan')->nullable()->after('jenis_kelamin');
+            }
+            if (!Schema::hasColumn('pengajuans', 'alamat')) {
+                $table->text('alamat')->nullable()->after('pekerjaan');
+            }
+            if (!Schema::hasColumn('pengajuans', 'desa')) {
+                $table->string('desa')->nullable()->after('alamat');
+            }
+            if (!Schema::hasColumn('pengajuans', 'rt')) {
+                $table->string('rt')->nullable()->after('desa');
+            }
+            if (!Schema::hasColumn('pengajuans', 'rw')) {
+                $table->string('rw')->nullable()->after('rt');
+            }
         });
     }
 

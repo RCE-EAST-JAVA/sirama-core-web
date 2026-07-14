@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        \DB::statement("ALTER TABLE users CHANGE rememberToken remember_token VARCHAR(100) NULL DEFAULT NULL");
+        if (Schema::hasColumn('users', 'rememberToken') && !Schema::hasColumn('users', 'remember_token')) {
+            \DB::statement("ALTER TABLE users CHANGE rememberToken remember_token VARCHAR(100) NULL DEFAULT NULL");
+        }
     }
 
     public function down(): void
