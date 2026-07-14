@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Pengajuan\AktaLahirPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaKematianPengajuanController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DesaController;
+use App\Http\Controllers\Api\JenisPerbaikanKkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,8 @@ use App\Http\Controllers\Api\DesaController;
 */
 
 // Public routes - tidak perlu token
-Route::get('/desas', [DesaController::class, 'index']);
+Route::get('/desas',               [DesaController::class, 'index']);
+Route::get('/jenis-perbaikan-kk',  [JenisPerbaikanKkController::class, 'index']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);

@@ -33,6 +33,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Pengajuan - KK Penambahan', description: 'Pengajuan penambahan anggota KK')]
 #[OA\Tag(name: 'Pengajuan - KK Pengurangan', description: 'Pengajuan pengurangan anggota KK')]
 #[OA\Tag(name: 'Pengajuan - KK Perbaikan', description: 'Pengajuan perbaikan data KK')]
+#[OA\Tag(name: 'Master Data', description: 'Data referensi / lookup (desa, jenis perbaikan, dll)')]
 
 // --- Response Schemas ---
 
@@ -241,6 +242,17 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(type: 'string', format: 'binary'),
             description: 'Satu atau lebih file pendukung, jpg/png/pdf maks 5MB per file'
         ),
+    ]
+)]
+
+// --- Master Data Schemas ---
+
+#[OA\Schema(
+    schema: 'JenisPerbaikanKkResponse',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 1),
+        new OA\Property(property: 'nama_perbaikan', type: 'string', example: 'Perbaikan Nama'),
+        new OA\Property(property: 'deskripsi', type: 'string', nullable: true, example: 'Perbaikan kesalahan penulisan nama'),
     ]
 )]
 class ApiDocController extends Controller

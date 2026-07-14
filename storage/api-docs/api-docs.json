@@ -280,6 +280,50 @@
                 }
             }
         },
+        "/jenis-perbaikan-kk": {
+            "get": {
+                "tags": [
+                    "Master Data"
+                ],
+                "summary": "Ambil daftar jenis perbaikan KK",
+                "description": "Digunakan untuk mengisi dropdown pilihan jenis perbaikan pada form pengajuan KK Perbaikan.",
+                "operationId": "a64dd94f0181cf5360457cfdfa7430fe",
+                "responses": {
+                    "200": {
+                        "description": "Daftar jenis perbaikan KK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nama_perbaikan": {
+                                                        "type": "string",
+                                                        "example": "Perbaikan Nama"
+                                                    },
+                                                    "deskripsi": {
+                                                        "type": "string",
+                                                        "example": "Perbaikan kesalahan penulisan nama"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/pengajuan/akta-kematian": {
             "post": {
                 "tags": [
@@ -2584,6 +2628,24 @@
                     }
                 },
                 "type": "object"
+            },
+            "JenisPerbaikanKkResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nama_perbaikan": {
+                        "type": "string",
+                        "example": "Perbaikan Nama"
+                    },
+                    "deskripsi": {
+                        "type": "string",
+                        "example": "Perbaikan kesalahan penulisan nama",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -2623,6 +2685,10 @@
         {
             "name": "Pengajuan - KK Perbaikan",
             "description": "Pengajuan perbaikan data KK"
+        },
+        {
+            "name": "Master Data",
+            "description": "Data referensi / lookup (desa, jenis perbaikan, dll)"
         },
         {
             "name": "Desa",
