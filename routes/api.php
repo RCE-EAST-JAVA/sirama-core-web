@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\JenisPerbaikanKkController;
 // Public routes - tidak perlu token
 Route::get('/desas',               [DesaController::class, 'index']);
 Route::get('/jenis-perbaikan-kk',  [JenisPerbaikanKkController::class, 'index']);
+Route::get('/pengajuan/statuses',  [KiaPengajuanController::class, 'statuses']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);

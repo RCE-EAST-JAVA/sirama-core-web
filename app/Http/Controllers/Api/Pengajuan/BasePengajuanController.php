@@ -126,6 +126,53 @@ abstract class BasePengajuanController extends Controller
     }
 
     #[OA\Get(
+        path: '/pengajuan/statuses',
+        summary: 'Daftar semua status pengajuan',
+        description: 'Endpoint publik — tidak perlu token. Mengembalikan semua nilai status pengajuan beserta labelnya. Berguna untuk mengisi dropdown filter.',
+        tags: ['Pengajuan'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Daftar status pengajuan',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'value', type: 'string', example: 'berkas_diterima'),
+                                    new OA\Property(property: 'label', type: 'string', example: 'Berkas Diterima'),
+                                ]
+                            )
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function statuses(): JsonResponse
+    {
+        $statusLabels = [
+            'berkas_diterima'        => 'Berkas Diterima',
+            'diverifikasi_desa'      => 'Diverifikasi Desa',
+            'ditolak_desa'           => 'Ditolak Desa',
+            'diverifikasi_kecamatan' => 'Diverifikasi Kecamatan',
+            'ditolak_kecamatan'      => 'Ditolak Kecamatan',
+            'selesai'                => 'Selesai',
+        ];
+
+        $statuses = array_map(
+            fn($value, $label) => ['value' => $value, 'label' => $label],
+            array_keys($statusLabels),
+            $statusLabels
+        );
+
+        return response()->json(['data' => $statuses]);
+    }
+
+    #[OA\Get(
         path: '/pengajuan/{id}',
         summary: 'Detail satu pengajuan',
         tags: ['Pengajuan'],

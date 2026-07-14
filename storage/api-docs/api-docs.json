@@ -802,6 +802,49 @@
                 ]
             }
         },
+        "/pengajuan/statuses": {
+            "get": {
+                "tags": [
+                    "Pengajuan"
+                ],
+                "summary": "Daftar semua status pengajuan",
+                "description": "Endpoint publik — tidak perlu token. Mengembalikan semua nilai status pengajuan beserta labelnya. Berguna untuk mengisi dropdown filter.",
+                "operationId": "c709f98571bcea9e103fda9953c8d6ef",
+                "responses": {
+                    "200": {
+                        "description": "Daftar status pengajuan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "value": {
+                                                        "type": "string",
+                                                        "example": "berkas_diterima"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "Berkas Diterima"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                }
+            }
+        },
         "/pengajuan/{id}": {
             "get": {
                 "tags": [
