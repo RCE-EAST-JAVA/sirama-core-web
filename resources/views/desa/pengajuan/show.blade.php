@@ -154,18 +154,14 @@
                         </div>
                     </div>
 
-                    <div class="mb-5" x-show="aksi === 'tolak'" x-transition>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan Penolakan <span class="text-red-500">*</span></label>
-                        <textarea name="catatan" rows="3"
+                    <div class="mb-5" x-show="aksi !== ''" x-transition>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <span x-text="aksi === 'tolak' ? 'Catatan Penolakan' : 'Catatan (opsional)'"></span>
+                            <span x-show="aksi === 'tolak'" class="text-red-500"> *</span>
+                        </label>
+                        <textarea name="catatan" x-bind:rows="aksi === 'tolak' ? 3 : 2"
                             class="w-full text-base border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="Jelaskan alasan penolakan..."></textarea>
-                    </div>
-
-                    <div class="mb-5" x-show="aksi === 'approve'" x-transition>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan (opsional)</label>
-                        <textarea name="catatan" rows="2"
-                            class="w-full text-base border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="Catatan tambahan..."></textarea>
+                            x-bind:placeholder="aksi === 'tolak' ? 'Jelaskan alasan penolakan...' : 'Catatan tambahan...'"></textarea>
                     </div>
 
                     <button type="submit"
