@@ -49,7 +49,7 @@ class PengajuanResource extends JsonResource
             ),
 
             'riwayat_statuses' => $this->whenLoaded('riwayatStatuses', function () {
-                return $this->riwayatStatuses->map(fn($r) => [
+                return $this->riwayatStatuses->sortByDesc('created_at')->values()->map(fn($r) => [
                     'status'  => $r->status_riwayat,
                     'catatan' => $r->catatan,
                     'waktu'   => $r->created_at->toIso8601String(),
