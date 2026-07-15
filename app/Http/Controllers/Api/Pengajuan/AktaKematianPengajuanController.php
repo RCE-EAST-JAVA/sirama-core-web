@@ -119,6 +119,8 @@ class AktaKematianPengajuanController extends BasePengajuanController
     {
         $this->authorizeWarga($pengajuan);
 
+        $this->authorizeCanUpdate($pengajuan);
+
         return DB::transaction(function () use ($request, $pengajuan) {
             $formData = $request->only([
                 'nama_lengkap_anggota', 'alamat_lengkap_anggota', 'nik_anggota',
@@ -136,9 +138,11 @@ class AktaKematianPengajuanController extends BasePengajuanController
                 $formData
             );
 
+            $this->handleResubmit($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan Akta Kematian berhasil diupdate.',
-                'data'    => new PengajuanResource($pengajuan->load(['user', 'formAktaKematian'])),
+                'data'    => new PengajuanResource($pengajuan->fresh()->load(['user', 'formAktaKematian'])),
             ]);
         });
     }

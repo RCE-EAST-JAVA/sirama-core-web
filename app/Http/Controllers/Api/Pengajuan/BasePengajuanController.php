@@ -98,6 +98,7 @@ abstract class BasePengajuanController extends Controller
     {
         $statusLabels = [
             'berkas_diterima'        => 'Berkas Diterima',
+            'diajukan_kembali'       => 'Diajukan Kembali',
             'diverifikasi_desa'      => 'Diverifikasi Desa',
             'ditolak_desa'           => 'Ditolak Desa',
             'diverifikasi_kecamatan' => 'Diverifikasi Kecamatan',
@@ -156,6 +157,7 @@ abstract class BasePengajuanController extends Controller
     {
         $statusLabels = [
             'berkas_diterima'        => 'Berkas Diterima',
+            'diajukan_kembali'       => 'Diajukan Kembali',
             'diverifikasi_desa'      => 'Diverifikasi Desa',
             'ditolak_desa'           => 'Ditolak Desa',
             'diverifikasi_kecamatan' => 'Diverifikasi Kecamatan',
@@ -302,6 +304,39 @@ abstract class BasePengajuanController extends Controller
         if ($pengajuan->user_id !== Auth::id()) {
             abort(403, 'Akses ditolak.');
         }
+    }
+
+    /**
+     * Pastikan pengajuan boleh diupdate oleh warga.
+     * Hanya boleh update jika status ditolak_desa, ditolak_kecamatan, atau diajukan_kembali.
+     */
+    protected function authorizeCanUpdate(Pengajuan $pengajuan): void
+    {
+        $allowedStatuses = ['ditolak_desa', 'ditolak_kecamatan', 'diajukan_kembali'];
+        if (!in_array($pengajuan->status, $allowedStatuses)) {
+            abort(403, 'Pengajuan tidak dapat diubah pada status saat ini.');
+        }
+    }
+
+    /**
+     * Setelah warga merevisi pengajuan yang ditolak, ubah status ke diajukan_kembali
+     * dan catat di riwayat status.
+     */
+    protected function handleResubmit(Pengajuan $pengajuan): void
+    {
+        if (!in_array($pengajuan->status, ['ditolak_desa', 'ditolak_kecamatan'])) {
+            return;
+        }
+
+        $pengajuan->update(['status' => 'diajukan_kembali']);
+
+        \App\Models\RiwayatStatus::create([
+            'pengajuan_id'   => $pengajuan->id,
+            'status_riwayat' => 'diajukan_kembali',
+            'catatan'        => 'Warga mengajukan kembali setelah revisi.',
+        ]);
+
+        event(new \App\Events\StatusPengajuanUpdated($pengajuan));
     }
 
     /**

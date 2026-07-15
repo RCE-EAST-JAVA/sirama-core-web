@@ -127,6 +127,7 @@ class KiaPengajuanController extends BasePengajuanController
     public function update(StoreKiaRequest $request, Pengajuan $pengajuan): JsonResponse
     {
         $this->authorizeWarga($pengajuan);
+        $this->authorizeCanUpdate($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
             $formData = $request->only([
@@ -146,9 +147,11 @@ class KiaPengajuanController extends BasePengajuanController
                 $formData
             );
 
+            $this->handleResubmit($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KIA berhasil diupdate.',
-                'data'    => new PengajuanResource($pengajuan->load(['user', 'formKia'])),
+                'data'    => new PengajuanResource($pengajuan->fresh()->load(['user', 'formKia'])),
             ]);
         });
     }

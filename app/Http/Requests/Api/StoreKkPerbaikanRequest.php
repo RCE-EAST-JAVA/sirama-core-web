@@ -11,9 +11,21 @@ class StoreKkPerbaikanRequest extends FormRequest
         return $this->user()?->isWarga() ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Parse data_perbaikan jika dikirim sebagai JSON string (dari Swagger UI / mobile)
+        if ($this->filled('data_perbaikan') && is_string($this->data_perbaikan)) {
+            $decoded = json_decode($this->data_perbaikan, true);
+            if (is_array($decoded)) {
+                $this->merge(['data_perbaikan' => $decoded]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         $required = $this->isMethod('POST') ? 'required' : 'nullable';
+        $fileRequired = $this->isMethod('POST') ? 'required' : 'nullable';
 
         return [
             // Data spesifik KK Perbaikan — disimpan ke tabel form_kk_perbaikans
@@ -24,8 +36,8 @@ class StoreKkPerbaikanRequest extends FormRequest
             'data_perbaikan'               => [$required, 'array'],
             'data_perbaikan.*'             => ['string'],
 
-            // file_pendukung adalah array file (bisa lebih dari satu)
-            'file_pendukung'               => [$this->isMethod('POST') ? 'required' : 'nullable', 'array', 'min:1'],
+            // file_pendukung bisa single file atau array
+            'file_pendukung'               => [$fileRequired],
             'file_pendukung.*'             => ['file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
     }

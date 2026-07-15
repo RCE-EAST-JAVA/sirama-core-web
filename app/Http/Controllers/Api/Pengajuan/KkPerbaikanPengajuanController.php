@@ -36,15 +36,15 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
                         new OA\Property(property: 'nama_anggota_yang_diperbaiki', type: 'string'),
                         new OA\Property(
                             property: 'data_perbaikan',
-                            type: 'object',
-                            example: ['nama_lama' => 'Budi', 'nama_baru' => 'Budi Santoso'],
-                            additionalProperties: new OA\AdditionalProperties(type: 'string')
+                            type: 'string',
+                            description: 'JSON string key-value data yang perlu diperbaiki',
+                            example: '{"nama_lama":"Budi","nama_baru":"Budi Santoso"}',
                         ),
                         new OA\Property(
-                            property: 'file_pendukung[]',
+                            property: 'file_pendukung',
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
-                            description: 'Satu atau lebih file pendukung'
+                            description: 'Satu atau lebih file pendukung. Kirim dengan field name file_pendukung[] untuk multiple files.'
                         ),
                     ]
                 )
@@ -64,7 +64,15 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
             $pengajuan = Pengajuan::create($this->buildPengajuanData($user, 'kk_perbaikan'));
 
             // Simpan setiap file pendukung, hasilnya array of paths
-            $filePaths = collect($request->file('file_pendukung'))
+            // Cek file_pendukung[] (bracket) lalu file_pendukung (tanpa bracket)
+            $files = $request->file('file_pendukung[]')
+                ?? $request->file('file_pendukung')
+                ?? [];
+            if (!is_array($files)) {
+                $files = $files ? [$files] : [];
+            }
+            $filePaths = collect($files)
+                ->filter()
                 ->map(fn($file) => $this->storeFile($file, 'pengajuan/kk-perbaikan'))
                 ->values()
                 ->all();
@@ -107,11 +115,12 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
                         new OA\Property(property: 'nama_anggota_yang_diperbaiki', type: 'string'),
                         new OA\Property(
                             property: 'data_perbaikan',
-                            type: 'object',
-                            additionalProperties: new OA\AdditionalProperties(type: 'string')
+                            type: 'string',
+                            description: 'JSON string key-value data yang perlu diperbaiki',
+                            example: '{"nama_lama":"Budi","nama_baru":"Budi Santoso"}',
                         ),
                         new OA\Property(
-                            property: 'file_pendukung[]',
+                            property: 'file_pendukung',
                             type: 'array',
                             items: new OA\Items(type: 'string', format: 'binary'),
                             description: 'Satu atau lebih file pendukung. Jika dikirim, semua file lama diganti.'
@@ -130,6 +139,7 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
     public function update(StoreKkPerbaikanRequest $request, Pengajuan $pengajuan): JsonResponse
     {
         $this->authorizeWarga($pengajuan);
+        $this->authorizeCanUpdate($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
             $formData = $request->only([
@@ -137,13 +147,20 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
                 'nama_anggota_yang_diperbaiki', 'data_perbaikan',
             ]);
 
-            if ($request->hasFile('file_pendukung')) {
+            if ($request->hasFile('file_pendukung[]') || $request->hasFile('file_pendukung')) {
                 // Hapus file lama jika ada
                 $fileLama = $pengajuan->formKkPerbaikan?->file_pendukung ?? [];
                 foreach ((array) $fileLama as $path) {
                     $this->deleteFile($path);
                 }
-                $formData['file_pendukung'] = collect($request->file('file_pendukung'))
+                $files = $request->file('file_pendukung[]')
+                    ?? $request->file('file_pendukung')
+                    ?? [];
+                if (!is_array($files)) {
+                    $files = $files ? [$files] : [];
+                }
+                $formData['file_pendukung'] = collect($files)
+                    ->filter()
                     ->map(fn($file) => $this->storeFile($file, 'pengajuan/kk-perbaikan'))
                     ->values()
                     ->all();
@@ -154,9 +171,11 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
                 $formData
             );
 
+            $this->handleResubmit($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KK Perbaikan berhasil diupdate.',
-                'data'    => new PengajuanResource($pengajuan->load(['user', 'formKkPerbaikan'])),
+                'data'    => new PengajuanResource($pengajuan->fresh()->load(['user', 'formKkPerbaikan'])),
             ]);
         });
     }

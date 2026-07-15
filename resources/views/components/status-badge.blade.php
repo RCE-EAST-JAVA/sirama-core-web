@@ -8,6 +8,7 @@ $config = match($status) {
     'ditolak_kecamatan'  => ['label' => 'Ditolak Kecamatan',  'class' => 'bg-red-50 text-red-700 ring-red-600/20'],
     'diverifikasi_kecamatan' => ['label' => 'Diverifikasi Kecamatan', 'class' => 'bg-purple-50 text-purple-700 ring-purple-600/20'],
     'selesai'            => ['label' => 'Selesai',            'class' => 'bg-green-50 text-green-700 ring-green-600/20'],
+    'diajukan_kembali'   => ['label' => 'Diajukan Kembali',  'class' => 'bg-orange-50 text-orange-700 ring-orange-600/20'],
     default              => ['label' => $status,              'class' => 'bg-gray-50 text-gray-700 ring-gray-600/20'],
 };
 @endphp

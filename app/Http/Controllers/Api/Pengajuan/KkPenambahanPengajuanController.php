@@ -150,6 +150,7 @@ class KkPenambahanPengajuanController extends BasePengajuanController
     public function update(StoreKkPenambahanRequest $request, Pengajuan $pengajuan): JsonResponse
     {
         $this->authorizeWarga($pengajuan);
+        $this->authorizeCanUpdate($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
             $formData = $request->only([
@@ -172,9 +173,11 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                 $formData
             );
 
+            $this->handleResubmit($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KK Penambahan berhasil diupdate.',
-                'data'    => new PengajuanResource($pengajuan->load(['user', 'formKkPenambahan'])),
+                'data'    => new PengajuanResource($pengajuan->fresh()->load(['user', 'formKkPenambahan'])),
             ]);
         });
     }

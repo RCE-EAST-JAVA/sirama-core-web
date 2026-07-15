@@ -116,6 +116,7 @@ class AktaLahirPengajuanController extends BasePengajuanController
     public function update(StoreAktaLahirRequest $request, Pengajuan $pengajuan): JsonResponse
     {
         $this->authorizeWarga($pengajuan);
+        $this->authorizeCanUpdate($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
             $formData = $request->only(['nama_anak', 'tanggal_lahir_anak']);
@@ -132,9 +133,11 @@ class AktaLahirPengajuanController extends BasePengajuanController
                 $formData
             );
 
+            $this->handleResubmit($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan Akta Kelahiran berhasil diupdate.',
-                'data'    => new PengajuanResource($pengajuan->load(['user', 'formAktaLahir'])),
+                'data'    => new PengajuanResource($pengajuan->fresh()->load(['user', 'formAktaLahir'])),
             ]);
         });
     }

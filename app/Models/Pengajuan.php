@@ -110,12 +110,13 @@ class Pengajuan extends Model
     public function getLabelStatus(): string
     {
         return match ($this->status) {
-            'berkas_diterima'     => 'Berkas Diterima',
-            'ditolak_desa'        => 'Ditolak Desa',
-            'diverifikasi_desa'   => 'Diverifikasi Desa',
-            'ditolak_kecamatan'   => 'Ditolak Kecamatan',
+            'berkas_diterima'        => 'Berkas Diterima',
+            'diajukan_kembali'       => 'Diajukan Kembali',
+            'ditolak_desa'           => 'Ditolak Desa',
+            'diverifikasi_desa'      => 'Diverifikasi Desa',
+            'ditolak_kecamatan'      => 'Ditolak Kecamatan',
             'diverifikasi_kecamatan' => 'Diverifikasi Kecamatan',
-            'selesai'             => 'Selesai',
+            'selesai'                => 'Selesai',
             default               => $this->status,
         };
     }

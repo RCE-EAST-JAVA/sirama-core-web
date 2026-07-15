@@ -26,7 +26,7 @@ class DashboardController extends Controller
         ];
 
         $pengajuan_terbaru = (clone $query)
-            ->whereIn('status', ['berkas_diterima', 'ditolak_desa'])
+            ->whereIn('status', ['berkas_diterima', 'ditolak_desa', 'diajukan_kembali'])
             ->latest()
             ->take(10)
             ->get();

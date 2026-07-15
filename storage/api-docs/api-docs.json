@@ -1590,17 +1590,12 @@
                                         "type": "string"
                                     },
                                     "data_perbaikan": {
-                                        "type": "object",
-                                        "example": {
-                                            "nama_lama": "Budi",
-                                            "nama_baru": "Budi Santoso"
-                                        },
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        }
+                                        "description": "JSON string key-value data yang perlu diperbaiki",
+                                        "type": "string",
+                                        "example": "{\"nama_lama\":\"Budi\",\"nama_baru\":\"Budi Santoso\"}"
                                     },
-                                    "file_pendukung[]": {
-                                        "description": "Satu atau lebih file pendukung",
+                                    "file_pendukung": {
+                                        "description": "Satu atau lebih file pendukung. Kirim dengan field name file_pendukung[] untuk multiple files.",
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -1668,12 +1663,11 @@
                                         "type": "string"
                                     },
                                     "data_perbaikan": {
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        }
+                                        "description": "JSON string key-value data yang perlu diperbaiki",
+                                        "type": "string",
+                                        "example": "{\"nama_lama\":\"Budi\",\"nama_baru\":\"Budi Santoso\"}"
                                     },
-                                    "file_pendukung[]": {
+                                    "file_pendukung": {
                                         "description": "Satu atau lebih file pendukung. Jika dikirim, semua file lama diganti.",
                                         "type": "array",
                                         "items": {
@@ -2187,7 +2181,8 @@
                             "diverifikasi_desa",
                             "ditolak_kecamatan",
                             "diverifikasi_kecamatan",
-                            "selesai"
+                            "selesai",
+                            "diajukan_kembali"
                         ]
                     },
                     "label_status": {

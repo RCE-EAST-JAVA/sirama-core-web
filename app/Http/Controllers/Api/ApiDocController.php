@@ -73,7 +73,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'status',
             type: 'string',
-            enum: ['berkas_diterima', 'ditolak_desa', 'diverifikasi_desa', 'ditolak_kecamatan', 'diverifikasi_kecamatan', 'selesai'],
+            enum: ['berkas_diterima', 'ditolak_desa', 'diverifikasi_desa', 'ditolak_kecamatan', 'diverifikasi_kecamatan', 'selesai', 'diajukan_kembali'],
             example: 'berkas_diterima'
         ),
         new OA\Property(property: 'label_status', type: 'string', example: 'Berkas Diterima'),

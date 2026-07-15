@@ -49,7 +49,7 @@ class FormKkPerbaikan extends Model
     {
         $files = [];
         foreach ($this->file_pendukung ?? [] as $index => $path) {
-            $files['file_pendukung_'.($index + 1)] = 'Dokumen Pendukung '.($index + 1);
+            $files['file_pendukung__' . $index] = 'Dokumen Pendukung ' . ($index + 1);
         }
         return $files;
     }

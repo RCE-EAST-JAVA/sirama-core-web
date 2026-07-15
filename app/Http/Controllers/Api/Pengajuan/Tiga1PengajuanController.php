@@ -123,6 +123,7 @@ class Tiga1PengajuanController extends BasePengajuanController
     public function update(StoreTiga1Request $request, Pengajuan $pengajuan): JsonResponse
     {
         $this->authorizeWarga($pengajuan);
+        $this->authorizeCanUpdate($pengajuan);
 
         return DB::transaction(function () use ($request, $pengajuan) {
             $formData = $request->only(['nama_anak', 'tanggal_lahir_anak']);
@@ -139,9 +140,11 @@ class Tiga1PengajuanController extends BasePengajuanController
                 $formData
             );
 
+            $this->handleResubmit($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan 3 in 1 berhasil diupdate.',
-                'data'    => new PengajuanResource($pengajuan->load(['user', 'form3In1'])),
+                'data'    => new PengajuanResource($pengajuan->fresh()->load(['user', 'form3In1'])),
             ]);
         });
     }

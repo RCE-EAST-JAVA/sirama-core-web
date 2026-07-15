@@ -9,6 +9,7 @@
                     <option value="">Perlu Tindak Lanjut</option>
                     <option value="berkas_diterima"   {{ request('status') === 'berkas_diterima'   ? 'selected' : '' }}>Berkas Diterima</option>
                     <option value="ditolak_desa"      {{ request('status') === 'ditolak_desa'      ? 'selected' : '' }}>Ditolak Desa</option>
+                    <option value="diajukan_kembali"  {{ request('status') === 'diajukan_kembali'  ? 'selected' : '' }}>Diajukan Kembali</option>
                     <option value="diverifikasi_desa" {{ request('status') === 'diverifikasi_desa' ? 'selected' : '' }}>Diverifikasi Desa</option>
                     <option value="selesai"           {{ request('status') === 'selesai'           ? 'selected' : '' }}>Selesai</option>
                 </select>

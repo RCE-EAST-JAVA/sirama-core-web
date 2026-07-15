@@ -12,6 +12,7 @@
                     <option value="selesai"            {{ request('status') === 'selesai'            ? 'selected' : '' }}>Selesai</option>
                     <option value="ditolak_kecamatan"  {{ request('status') === 'ditolak_kecamatan'  ? 'selected' : '' }}>Ditolak Kecamatan</option>
                     <option value="ditolak_desa"       {{ request('status') === 'ditolak_desa'       ? 'selected' : '' }}>Ditolak Desa</option>
+                    <option value="diajukan_kembali"  {{ request('status') === 'diajukan_kembali'  ? 'selected' : '' }}>Diajukan Kembali</option>
                 </select>
             </div>
             <div>

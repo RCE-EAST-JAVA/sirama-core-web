@@ -25,7 +25,7 @@ class PengajuanController extends Controller
             $query->where('status', $request->status);
         } else {
             // Default: tampilkan yang perlu ditindaklanjuti
-            $query->whereIn('status', ['berkas_diterima', 'ditolak_desa']);
+            $query->whereIn('status', ['berkas_diterima', 'ditolak_desa', 'diajukan_kembali']);
         }
 
         // Filter jenis layanan

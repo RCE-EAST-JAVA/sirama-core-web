@@ -16,7 +16,7 @@ class RiwayatController extends Controller
 
         $query = Pengajuan::with('user')
             ->whereHas('user', fn ($q) => $q->where('desa', $desa))
-            ->whereIn('status', ['selesai', 'ditolak_kecamatan', 'ditolak_desa', 'diverifikasi_desa', 'diverifikasi_kecamatan']);
+            ->whereIn('status', ['selesai', 'ditolak_kecamatan', 'ditolak_desa', 'diverifikasi_desa', 'diverifikasi_kecamatan', 'diajukan_kembali']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);

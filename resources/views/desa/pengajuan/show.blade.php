@@ -68,7 +68,11 @@
                     $fileFields = method_exists($formDetail, 'getFileDokumen')
                         ? array_keys($formDetail->getFileDokumen())
                         : [];
-                    $skipFields = array_merge(['id', 'pengajuan_id', 'created_at', 'updated_at'], $fileFields);
+                    // Tambah kolom asli array (misal file_pendukung) agar path tidak ditampilkan di grid
+                    $fileColumns = method_exists($formDetail, 'getFileDokumen')
+                        ? array_unique(array_map(fn($k) => str_contains($k, '__') ? explode('__', $k, 2)[0] : $k, array_keys($formDetail->getFileDokumen())))
+                        : [];
+                    $skipFields = array_merge(['id', 'pengajuan_id', 'created_at', 'updated_at'], $fileFields, $fileColumns);
                 @endphp
                 <div class="grid grid-cols-2 gap-5">
                     @foreach($formDetail->getAttributes() as $key => $value)
@@ -93,11 +97,20 @@
                         <p class="text-sm font-medium text-gray-600 mb-3">Dokumen Pendukung</p>
                         <div class="flex flex-wrap gap-3">
                             @foreach($formDetail->getFileDokumen() as $fieldName => $label)
-                                @if($formDetail->$fieldName)
+                                @php
+                                    // Support format "kolom__index" untuk array field
+                                    if (str_contains($fieldName, '__')) {
+                                        [$col, $idx] = explode('__', $fieldName, 2);
+                                        $filePath = $formDetail->$col[$idx] ?? null;
+                                    } else {
+                                        $filePath = $formDetail->$fieldName ?? null;
+                                    }
+                                @endphp
+                                @if($filePath)
                                     <x-document-preview
                                         :pengajuan-id="$pengajuan->id"
                                         :field-name="$fieldName"
-                                        :file-path="$formDetail->$fieldName"
+                                        :file-path="$filePath"
                                         :label="$label" />
                                 @endif
                             @endforeach
@@ -131,7 +144,7 @@
         <div class="space-y-6">
 
             {{-- Form Verifikasi --}}
-            @if(in_array($pengajuan->status, ['berkas_diterima', 'ditolak_desa']))
+            @if(in_array($pengajuan->status, ['berkas_diterima', 'diajukan_kembali']))
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <h3 class="text-base font-semibold text-gray-900 mb-5">Verifikasi Pengajuan</h3>
 

@@ -11,6 +11,47 @@ use Symfony\Component\HttpFoundation\Response;
 class DocumentController extends Controller
 {
     /**
+     * Parse field name yang mungkin mengandung index array.
+     * Format: "kolom__index" (double underscore) → ['kolom', index]
+     * Contoh: "file_pendukung__1" → ['file_pendukung', 1]
+     * Jika tidak ada __, return ['kolom', null]
+     */
+    private function parseField(string $field): array
+    {
+        if (str_contains($field, '__')) {
+            [$column, $idx] = explode('__', $field, 2);
+            return [$column, (int) $idx];
+        }
+        return [$field, null];
+    }
+
+    /**
+     * Ambil file path dari formDetail berdasarkan field name,
+     * termasuk support format "kolom__index" untuk array field.
+     */
+    private function getFilePathFromForm($formDetail, string $field): ?string
+    {
+        [$column, $idx] = $this->parseField($field);
+
+        if (!array_key_exists($column, $formDetail->getAttributes())) {
+            return null;
+        }
+
+        $value = $formDetail->$column;
+
+        if ($idx !== null) {
+            // Format kolom__index — ambil item ke-$idx dari array
+            return is_array($value) ? ($value[$idx] ?? null) : null;
+        }
+
+        if (is_array($value)) {
+            return $value[0] ?? null;
+        }
+
+        return $value;
+    }
+
+    /**
      * Resolve file path dari form detail, termasuk handle array (kk_perbaikan)
      */
     private function resolveFilePath(Pengajuan $pengajuan, string $field): string
@@ -27,15 +68,9 @@ class DocumentController extends Controller
 
         $formDetail = $pengajuan->getFormDetail();
         if (!$formDetail) abort(404, 'Form detail tidak ditemukan');
-        if (!array_key_exists($field, $formDetail->getAttributes())) abort(404, 'Field tidak ditemukan');
 
-        $filePath = $formDetail->$field;
+        $filePath = $this->getFilePathFromForm($formDetail, $field);
         if (!$filePath) abort(404, 'File tidak ditemukan');
-
-        if (is_array($filePath)) {
-            $filePath = $filePath[0] ?? null;
-            if (!$filePath) abort(404, 'File tidak ditemukan');
-        }
 
         if (!Storage::disk('local')->exists($filePath)) abort(404, 'File tidak ditemukan di storage');
 
@@ -61,20 +96,9 @@ class DocumentController extends Controller
             return response()->json(['error' => 'Form detail tidak ditemukan'], 404);
         }
 
-        if (!array_key_exists($field, $formDetail->getAttributes())) {
-            return response()->json(['error' => 'Field tidak ditemukan'], 404);
-        }
-
-        $filePath = $formDetail->$field;
+        $filePath = $this->getFilePathFromForm($formDetail, $field);
         if (!$filePath) {
             return response()->json(['error' => 'File belum diupload'], 404);
-        }
-
-        if (is_array($filePath)) {
-            $filePath = $filePath[0] ?? null;
-            if (!$filePath) {
-                return response()->json(['error' => 'File belum diupload'], 404);
-            }
         }
 
         if (!Storage::disk('local')->exists($filePath)) {

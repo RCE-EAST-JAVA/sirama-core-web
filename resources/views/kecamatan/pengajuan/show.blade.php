@@ -68,7 +68,11 @@
                     $fileFields = method_exists($formDetail, 'getFileDokumen')
                         ? array_keys($formDetail->getFileDokumen())
                         : [];
-                    $skipFields = array_merge(['id', 'pengajuan_id', 'created_at', 'updated_at'], $fileFields);
+                    // Tambah kolom asli array (misal file_pendukung) agar path tidak ditampilkan di grid
+                    $fileColumns = method_exists($formDetail, 'getFileDokumen')
+                        ? array_unique(array_map(fn($k) => str_contains($k, '__') ? explode('__', $k, 2)[0] : $k, array_keys($formDetail->getFileDokumen())))
+                        : [];
+                    $skipFields = array_merge(['id', 'pengajuan_id', 'created_at', 'updated_at'], $fileFields, $fileColumns);
                 @endphp
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     @foreach($formDetail->getAttributes() as $key => $value)
@@ -92,11 +96,19 @@
                         <p class="text-xs text-gray-500 mb-2">Dokumen Pendukung</p>
                         <div class="flex flex-wrap gap-3">
                             @foreach($formDetail->getFileDokumen() as $fieldName => $label)
-                                @if($formDetail->$fieldName)
+                                @php
+                                    if (str_contains($fieldName, '__')) {
+                                        [$col, $idx] = explode('__', $fieldName, 2);
+                                        $filePath = $formDetail->$col[$idx] ?? null;
+                                    } else {
+                                        $filePath = $formDetail->$fieldName ?? null;
+                                    }
+                                @endphp
+                                @if($filePath)
                                     <x-document-preview
                                         :pengajuan-id="$pengajuan->id"
                                         :field-name="$fieldName"
-                                        :file-path="$formDetail->$fieldName"
+                                        :file-path="$filePath"
                                         :label="$label" />
                                 @endif
                             @endforeach
