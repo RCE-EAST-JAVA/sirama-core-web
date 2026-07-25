@@ -6,6 +6,9 @@ use App\Events\StatusPengajuanUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Pengajuan;
 use App\Models\RiwayatStatus;
+use App\Models\User;
+use App\Notifications\StatusBerubahNotification;
+use App\Notifications\PengajuanBaruNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -73,6 +76,8 @@ class PengajuanController extends Controller
         ]);
 
         event(new StatusPengajuanUpdated($pengajuan));
+
+        $pengajuan->user->notify(new StatusBerubahNotification($pengajuan, $request->catatan));
 
         $pesan = match ($request->aksi) {
             'approve' => 'Pengajuan sedang diproses.',

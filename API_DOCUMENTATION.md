@@ -23,6 +23,9 @@ Autentikasi: **Laravel Sanctum** (Bearer Token)
   - [Akta Kelahiran](#akta-kelahiran)
   - [Akta Kematian](#akta-kematian)
 - [Status Pengajuan](#status-pengajuan)
+- [Notifikasi](#notifikasi)
+- [WebSocket Real-time (Pusher Channels)](#websocket-real-time-pusher-channels)
+- [Tipe Notifikasi & Trigger](#tipe-notifikasi--trigger)
 - [Kode Error](#kode-error)
 
 ---
@@ -703,3 +706,249 @@ Revisi pengajuan Akta Kematian.
 6. **Jika token expired** (response 401), redirect ke halaman login dan minta user login ulang.
 7. **KK Perbaikan** — `data_perbaikan` harus di-encode sebagai JSON string saat dikirim via multipart.
 8. **KK Perbaikan** — `file_pendukung` dikirim sebagai array: `file_pendukung[0]`, `file_pendukung[1]`, dst.
+9. **Notifikasi real-time** — Gunakan WebSocket (Pusher Channels) untuk notifikasi instan tanpa polling.
+10. **Badge counter** — Gunakan `GET /api/notifications/unread-count` untuk menampilkan jumlah notifikasi belum dibaca.
+
+---
+
+## Notifikasi
+
+Sistem notifikasi menggunakan **Laravel Reverb** (WebSocket) untuk real-time + database untuk history.  
+Semua endpoint memerlukan token Sanctum.
+
+### Daftar Notifikasi
+
+#### GET /api/notifications
+
+Ambil daftar notifikasi milik user yang login, diurutkan terbaru.
+
+**Query Parameters (Opsional)**
+
+| Parameter | Tipe | Default | Keterangan |
+|-----------|------|---------|------------|
+| `per_page` | integer | 20 | Jumlah notifikasi per halaman |
+| `page` | integer | 1 | Halaman |
+
+**Response 200**
+```json
+{
+  "data": [
+    {
+      "id": "fa1bd8f9-4b35-4394-8d8f-a6927f88a553",
+      "type": "App\\Notifications\\StatusBerubahNotification",
+      "data": {
+        "title": "Pengajuan Diterima",
+        "message": "Pengajuan KIA Anda telah diterima dan sedang diproses.",
+        "pengajuan_id": 1,
+        "jenis_layanan": "kia",
+        "status": "diverifikasi_desa",
+        "action": "view_detail",
+        "icon": "check-circle",
+        "color": "success"
+      },
+      "read_at": null,
+      "created_at": "2026-07-24T10:00:00.000000Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 20,
+    "total": 5,
+    "unread_count": 3
+  }
+}
+```
+
+**Field `data`:**
+
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| `title` | string | Judul notifikasi |
+| `message` | string | Isi pesan notifikasi |
+| `pengajuan_id` | integer | ID pengajuan terkait (nullable) |
+| `jenis_layanan` | string | Jenis layanan pengajuan |
+| `status` | string | Status terkini pengajuan |
+| `action` | string | Action yang bisa dilakukan: `view_detail`, `verify`, `process`, `resubmit`, `download` |
+| `icon` | string | Nama icon untuk UI |
+| `color` | string | Warna tema: `success`, `info`, `warning`, `danger` |
+
+**Catatan:** Gunakan field `action` untuk menentukan behavior saat user tap notifikasi:
+- `view_detail` → Buka halaman detail pengajuan
+- `verify` → Buka halaman verifikasi (admin desa)
+- `process` → Buka halaman proses (admin kecamatan)
+- `resubmit` → Buka halaman resubmit pengajuan
+- `download` → Buka halaman download dokumen
+
+---
+
+### Jumlah Notifikasi Belum Dibaca
+
+#### GET /api/notifications/unread-count
+
+**Response 200**
+```json
+{
+  "unread_count": 3
+}
+```
+
+Gunakan untuk menampilkan **badge counter** di icon bell atau tab bar.
+
+---
+
+### Tandai Notifikasi Sudah Dibaca
+
+#### POST /api/notifications/{id}/read
+
+Tandai satu notifikasi sebagai sudah dibaca.
+
+**Response 200**
+```json
+{
+  "message": "Notification marked as read"
+}
+```
+
+---
+
+### Tandai Semua Sudah Dibaca
+
+#### POST /api/notifications/read-all
+
+Tandai semua notifikasi user sebagai sudah dibaca.
+
+**Response 200**
+```json
+{
+  "message": "All notifications marked as read"
+}
+```
+
+---
+
+### Hapus Notifikasi
+
+#### DELETE /api/notifications/{id}
+
+Hapus notifikasi dari database.
+
+**Response 200**
+```json
+{
+  "message": "Notification deleted"
+}
+```
+
+---
+
+## WebSocket Real-time (Pusher Channels)
+
+Untuk notifikasi real-time tanpa polling, gunakan Pusher Channels protocol yang compatible dengan Laravel Reverb.
+
+### Konfigurasi
+
+| Parameter | Value |
+|-----------|-------|
+| `apiKey` | `eut2dlpqpo0vipk4qd5e` |
+| `cluster` | (kosongkan untuk self-hosted) |
+| `hostEndpoint` | `http://your-domain.com` |
+| `hostAuthEndpoint` | `http://your-domain.com/api/broadcasting/auth` |
+
+### Channel
+
+```
+private-App.Models.User.{userId}
+```
+
+Ganti `{userId}` dengan ID user yang login.
+
+### Authentication Header
+
+```
+Authorization: Bearer {token}
+```
+
+### Event Format
+
+```json
+{
+  "type": "App\\Notifications\\StatusBerubahNotification",
+  "title": "Status Pengajuan Berubah",
+  "message": "Pengajuan KIA Anda telah diverifikasi oleh Admin Desa.",
+  "pengajuan_id": 1,
+  "jenis_layanan": "kia",
+  "status": "diverifikasi_desa"
+}
+```
+
+### Integrasi dengan Flutter (Pusher Channels)
+
+```yaml
+# pubspec.yaml
+dependencies:
+  pusher_channels_flutter: ^2.2.1
+```
+
+```dart
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+
+class NotificationService {
+  late PusherChannelsFlutter pusher;
+
+  Future<void> init(String userId, String token) async {
+    pusher = PusherChannelsFlutter.getInstance();
+
+    await pusher.init(
+      apiKey: 'eut2dlpqpo0vipk4qd5e',
+      hostEndpoint: 'your-domain.com',
+      hostAuthEndpoint: 'your-domain.com/api/broadcasting/auth',
+      authParams: {
+        'headers': {
+          'Authorization': 'Bearer $token',
+        },
+      },
+    );
+
+    await pusher.subscribe(
+      channelName: 'private-App.Models.User.$userId',
+      onEvent: (event) {
+        final data = jsonDecode(event.data);
+        // Event types: notifikasi baru, status berubah
+        // Handle notification display
+      },
+    );
+
+    await pusher.connect();
+  }
+
+  void dispose() {
+    pusher.disconnect();
+  }
+}
+```
+
+### Polling Fallback (Jika WebSocket Tidak Tersedia)
+
+Jika WebSocket gagal connect, gunakan polling setiap 30-60 detik:
+
+```dart
+Timer.periodic(Duration(seconds: 30), (_) async {
+  final count = await _apiService.getUnreadCount();
+  if (count > 0) {
+    // Update badge counter
+    badgeNotifier.value = count;
+  }
+});
+```
+
+---
+
+## Tipe Notifikasi & Trigger
+
+| Tipe | Penerima | Trigger |
+|------|----------|---------|
+| `PengajuanDiterimaNotification` | Warga | Pengajuan baru berhasil dibuat |
+| `StatusBerubahNotification` | Warga | Status pengajuan berubah (approve/reject/selesai) |
+| `PengajuanBaruNotification` | Admin Desa | Ada pengajuan baru atau diresubmit warga |
+| `PengajuanSiapDiprosesNotification` | Admin Kecamatan | Desa sudah verifikasi pengajuan (fresh atau resubmit) |

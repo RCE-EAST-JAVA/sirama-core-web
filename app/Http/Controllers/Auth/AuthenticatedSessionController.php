@@ -30,6 +30,10 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // Generate Sanctum token untuk dashboard notification bell
+        $token = $user->createToken('web-session')->plainTextToken;
+        session(['api_token' => $token]);
+
         $destination = match ($user->role) {
             'admin_aplikasi'   => route('admin.dashboard', absolute: false),
             'admin_desa'       => route('desa.dashboard', absolute: false),
@@ -45,6 +49,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
+        // Hapus token web-session
+        if ($user) {
+            $user->tokens()->where('name', 'web-session')->delete();
+            $request->session()->forget('api_token');
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

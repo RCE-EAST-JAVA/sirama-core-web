@@ -65,6 +65,8 @@ class KkPenguranganPengajuanController extends BasePengajuanController
                 'file_sk_pindah_mati'    => $this->storeFile($request->file('file_sk_pindah_mati'), 'pengajuan/kk-pengurangan'),
             ]);
 
+            $this->sendPengajuanCreatedNotifications($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KK Pengurangan berhasil dibuat.',
                 'data'    => new PengajuanResource($pengajuan->load(['user', 'formKkPengurangan'])),

@@ -9,7 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class StatusPengajuanUpdated implements ShouldBroadcast
+class PengajuanCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -19,8 +19,7 @@ class StatusPengajuanUpdated implements ShouldBroadcast
     }
 
     /**
-     * Broadcast ke private channel milik user (warga) yang bersangkutan.
-     * Frontend listen: Echo.private(`App.Models.User.${userId}`)
+     * Broadcast ke private channel milik user (warga) yang membuat pengajuan.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
@@ -41,12 +40,12 @@ class StatusPengajuanUpdated implements ShouldBroadcast
             'jenis_layanan' => $this->pengajuan->getLabelJenisLayanan(),
             'status'        => $this->pengajuan->status,
             'status_label'  => $this->pengajuan->getLabelStatus(),
-            'updated_at'    => $this->pengajuan->updated_at->toDateTimeString(),
+            'created_at'    => $this->pengajuan->created_at->toDateTimeString(),
         ];
     }
 
     public function broadcastAs(): string
     {
-        return 'status.updated';
+        return 'pengajuan.created';
     }
 }

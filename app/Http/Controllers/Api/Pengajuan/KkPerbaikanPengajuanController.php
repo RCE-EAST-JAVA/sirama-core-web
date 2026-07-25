@@ -87,6 +87,8 @@ class KkPerbaikanPengajuanController extends BasePengajuanController
                 'file_pendukung'               => $filePaths,
             ]);
 
+            $this->sendPengajuanCreatedNotifications($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KK Perbaikan berhasil dibuat.',
                 'data'    => new PengajuanResource($pengajuan->load(['user', 'formKkPerbaikan'])),

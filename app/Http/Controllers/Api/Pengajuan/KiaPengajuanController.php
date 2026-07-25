@@ -79,6 +79,8 @@ class KiaPengajuanController extends BasePengajuanController
                 'file_foto_anak'       => $this->storeFile($request->file('file_foto_anak'), 'pengajuan/kia'),
             ]);
 
+            $this->sendPengajuanCreatedNotifications($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KIA berhasil dibuat.',
                 'data'    => new PengajuanResource($pengajuan->load(['user', 'formKia'])),

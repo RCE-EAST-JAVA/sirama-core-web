@@ -6,6 +6,9 @@ use App\Events\StatusPengajuanUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Pengajuan;
 use App\Models\RiwayatStatus;
+use App\Models\User;
+use App\Notifications\StatusBerubahNotification;
+use App\Notifications\PengajuanSiapDiprosesNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -80,6 +83,15 @@ class PengajuanController extends Controller
         ]);
 
         event(new StatusPengajuanUpdated($pengajuan));
+
+        $pengajuan->user->notify(new StatusBerubahNotification($pengajuan, $request->catatan));
+
+        if ($request->aksi === 'approve') {
+            $adminKecamatan = User::where('role', 'admin_kecamatan')->get();
+            foreach ($adminKecamatan as $admin) {
+                $admin->notify(new PengajuanSiapDiprosesNotification($pengajuan));
+            }
+        }
 
         $pesan = $request->aksi === 'approve'
             ? 'Pengajuan berhasil diverifikasi dan diteruskan ke kecamatan.'

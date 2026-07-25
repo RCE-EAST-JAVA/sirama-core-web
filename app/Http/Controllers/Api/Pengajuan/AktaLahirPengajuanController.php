@@ -64,6 +64,8 @@ class AktaLahirPengajuanController extends BasePengajuanController
 
             $pengajuan->formAktaLahir()->create($formData);
 
+            $this->sendPengajuanCreatedNotifications($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan Akta Kelahiran berhasil dibuat.',
                 'data'    => new PengajuanResource($pengajuan->load(['user', 'formAktaLahir'])),

@@ -1,4 +1,5 @@
 import './bootstrap';
+import './components/notification-bell';
 import Alpine from 'alpinejs';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';

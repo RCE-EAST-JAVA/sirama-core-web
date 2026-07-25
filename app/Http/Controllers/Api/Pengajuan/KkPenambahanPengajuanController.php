@@ -94,6 +94,8 @@ class KkPenambahanPengajuanController extends BasePengajuanController
                 'file_surat_nikah'       => $this->storeFile($request->file('file_surat_nikah'), 'pengajuan/kk-penambahan'),
             ]);
 
+            $this->sendPengajuanCreatedNotifications($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan KK Penambahan berhasil dibuat.',
                 'data'    => new PengajuanResource($pengajuan->load(['user', 'formKkPenambahan'])),

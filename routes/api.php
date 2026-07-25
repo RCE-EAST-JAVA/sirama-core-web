@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Pengajuan\AktaKematianPengajuanController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DesaController;
 use App\Http\Controllers\Api\JenisPerbaikanKkController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,4 +77,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile',      [ProfileController::class, 'show']);
     Route::post('/profile',     [ProfileController::class, 'update']);
     Route::get('/profile/foto', [ProfileController::class, 'foto'])->name('api.profile.foto');
+
+    // Notifications
+    Route::get('/notifications',              [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/{id}/read',   [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all',    [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}',      [NotificationController::class, 'destroy']);
 });

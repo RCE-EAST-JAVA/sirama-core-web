@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Api\Pengajuan;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PengajuanResource;
 use App\Models\Pengajuan;
+use App\Models\User;
+use App\Events\PengajuanCreated;
+use App\Notifications\PengajuanDiterimaNotification;
+use App\Notifications\PengajuanBaruNotification;
+use App\Notifications\PengajuanSiapDiprosesNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -320,11 +325,13 @@ abstract class BasePengajuanController extends Controller
 
     /**
      * Setelah warga merevisi pengajuan yang ditolak, ubah status ke diajukan_kembali
-     * dan catat di riwayat status.
+     * dan catat di riwayat status. Kirim notifikasi ke admin desa jika resubmit dari ditolak_desa.
      */
     protected function handleResubmit(Pengajuan $pengajuan): void
     {
-        if (!in_array($pengajuan->status, ['ditolak_desa', 'ditolak_kecamatan'])) {
+        $previousStatus = $pengajuan->status;
+
+        if (!in_array($previousStatus, ['ditolak_desa', 'ditolak_kecamatan'])) {
             return;
         }
 
@@ -337,6 +344,37 @@ abstract class BasePengajuanController extends Controller
         ]);
 
         event(new \App\Events\StatusPengajuanUpdated($pengajuan));
+
+        if ($previousStatus === 'ditolak_desa') {
+            $adminDesa = User::where('role', 'admin_desa')
+                ->where('desa', $pengajuan->desa)
+                ->get();
+
+            foreach ($adminDesa as $admin) {
+                $admin->notify(new PengajuanBaruNotification($pengajuan));
+            }
+        }
+    }
+
+    /**
+     * Kirim notifikasi saat pengajuan baru dibuat:
+     * - Warga: konfirmasi pengajuan diterima
+     * - Admin Desa: ada pengajuan baru untuk diverifikasi
+     * - Broadcast via WebSocket
+     */
+    protected function sendPengajuanCreatedNotifications(Pengajuan $pengajuan): void
+    {
+        $pengajuan->user->notify(new PengajuanDiterimaNotification($pengajuan));
+
+        $adminDesa = User::where('role', 'admin_desa')
+            ->where('desa', $pengajuan->desa)
+            ->get();
+
+        foreach ($adminDesa as $admin) {
+            $admin->notify(new PengajuanBaruNotification($pengajuan));
+        }
+
+        event(new PengajuanCreated($pengajuan));
     }
 
     /**

@@ -11,7 +11,10 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-gray-50 text-gray-800 text-base" x-data="{ sidebarOpen: false }">
+<body class="font-sans antialiased bg-gray-50 text-gray-800 text-base"
+    data-user-id="{{ auth()->id() }}"
+    data-token="{{ session('api_token') ?? '' }}"
+    x-data="{ sidebarOpen: false }">
 
     <div class="flex h-screen overflow-hidden">
 

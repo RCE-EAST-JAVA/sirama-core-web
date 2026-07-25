@@ -10,6 +10,7 @@ use App\Http\Controllers\Kecamatan\DashboardController as KecamatanDashboardCont
 use App\Http\Controllers\Kecamatan\PengajuanController as KecamatanPengajuanController;
 use App\Http\Controllers\Kecamatan\RiwayatController as KecamatanRiwayatController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Notifications - available for all authenticated users
+Route::middleware('auth')->prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/',                  [NotificationController::class, 'index'])->name('index');
+    Route::get('/{id}',              [NotificationController::class, 'show'])->name('show');
+    Route::post('/{id}/read',        [NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/mark-all-read',    [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}',           [NotificationController::class, 'destroy'])->name('destroy');
 });
 
 // Dokumen - serve file dengan auth + permission check

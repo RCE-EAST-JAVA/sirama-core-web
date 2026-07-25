@@ -70,6 +70,8 @@ class Tiga1PengajuanController extends BasePengajuanController
                 'file_foto_anak'        => $this->storeFile($request->file('file_foto_anak'), 'pengajuan/3-in-1'),
             ]);
 
+            $this->sendPengajuanCreatedNotifications($pengajuan);
+
             return response()->json([
                 'message' => 'Pengajuan 3 in 1 berhasil dibuat.',
                 'data'    => new PengajuanResource($pengajuan->load(['user', 'form3In1'])),
