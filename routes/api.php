@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Pengajuan\KkPerbaikanPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaLahirPengajuanController;
 use App\Http\Controllers\Api\Pengajuan\AktaKematianPengajuanController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\FcmTokenController;
 use App\Http\Controllers\Api\DesaController;
 use App\Http\Controllers\Api\JenisPerbaikanKkController;
 use App\Http\Controllers\Api\NotificationController;
@@ -77,6 +78,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile',      [ProfileController::class, 'show']);
     Route::post('/profile',     [ProfileController::class, 'update']);
     Route::get('/profile/foto', [ProfileController::class, 'foto'])->name('api.profile.foto');
+
+    // FCM Token
+    Route::post('/fcm-token', [FcmTokenController::class, 'update']);
 
     // Notifications
     Route::get('/notifications',              [NotificationController::class, 'index']);

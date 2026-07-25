@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channels\FcmChannel;
 use App\Models\Pengajuan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -21,8 +22,19 @@ class PengajuanBaruNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast'];
+        return ['database', 'broadcast', FcmChannel::class];
     }
+
+    public function toFcm(object $notifiable): array
+    {
+        return [
+            'title' => 'Pengajuan Baru',
+            'body'  => "Pengajuan {$this->pengajuan->getLabelJenisLayanan()} dari {$this->pengajuan->user->name} perlu diverifikasi.",
+            'data'  => ['pengajuan_id' => (string) $this->pengajuan->id],
+        ];
+    }
+
+
 
     /**
      * Get the array representation of the notification for database.

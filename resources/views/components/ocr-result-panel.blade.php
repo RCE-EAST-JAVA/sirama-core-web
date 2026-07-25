@@ -4,17 +4,17 @@
     - $ocrResults: Collection of OcrResult models
     - $fieldName: filter berdasarkan field tertentu (opsional)
 --}}
-@props(['ocrResults', 'fieldName' => null])
+@props(['results', 'fieldName' => null])
 
 @php
-    $results = $fieldName
-        ? $ocrResults->where('field_dokumen', $fieldName)
-        : $ocrResults;
+    $filtered = $fieldName
+        ? $results->where('field_dokumen', $fieldName)
+        : $results;
 @endphp
 
-@if($results->isNotEmpty())
+@if($filtered->isNotEmpty())
     <div class="space-y-3">
-        @foreach($results as $result)
+        @foreach($filtered as $result)
             <div class="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-2.5 bg-white border-b border-gray-200">
                     <span class="text-xs font-medium text-gray-700">

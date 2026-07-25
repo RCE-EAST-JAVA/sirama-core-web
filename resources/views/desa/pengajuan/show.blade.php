@@ -192,13 +192,6 @@
             </div>
             @endif
 
-            {{-- OCR Results --}}
-            @if($pengajuan->ocrResults->isNotEmpty())
-            <div class="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 class="text-base font-semibold text-gray-900 mb-3">Hasil Verifikasi OCR</h3>
-                <x-ocr-result-panel :results="$pengajuan->ocrResults" />
-            </div>
-            @endif
         </div>
     </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channels\FcmChannel;
 use App\Models\Pengajuan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -21,8 +22,19 @@ class StatusBerubahNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast'];
+        return ['database', 'broadcast', FcmChannel::class];
     }
+
+    public function toFcm(object $notifiable): array
+    {
+        return [
+            'title' => 'Status Pengajuan Berubah',
+            'body'  => $this->getMessage(),
+            'data'  => ['pengajuan_id' => (string) $this->pengajuan->id],
+        ];
+    }
+
+
 
     /**
      * Get the array representation of the notification for database.
