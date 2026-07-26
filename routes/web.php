@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\PengajuanController as AdminPengajuanController;
 use App\Http\Controllers\Admin\RiwayatController as AdminRiwayatController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Desa\DashboardController as DesaDashboardController;
@@ -62,6 +63,7 @@ Route::get('/dokumen/{pengajuan}/softfile/{index}', [DocumentController::class, 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/riwayat',   [AdminRiwayatController::class, 'index'])->name('riwayat');
+    Route::get('/pengajuan/{pengajuan}', [AdminPengajuanController::class, 'show'])->name('pengajuan.show');
 
     // Manajemen User (admin desa & kecamatan)
     Route::resource('users', AdminUserController::class)->except(['show']);

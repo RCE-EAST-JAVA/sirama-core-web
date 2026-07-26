@@ -23,7 +23,7 @@ class AuthController extends Controller
             content: new OA\JsonContent(
                 required: ['nik', 'name', 'no_whatsapp', 'password', 'password_confirmation'],
                 properties: [
-                    new OA\Property(property: 'nik', type: 'string', minLength: 16, maxLength: 16, example: '3277010101900001', description: '16 digit NIK'),
+                    new OA\Property(property: 'nik', type: 'string', minLength: 16, maxLength: 16, example: '3511010101900001', description: '16 digit NIK diawali 3511 (kode Bondowoso)'),
                     new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Budi Santoso'),
                     new OA\Property(property: 'no_whatsapp', type: 'string', maxLength: 20, example: '08123456789'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'password'),
@@ -54,7 +54,7 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $request->validate([
-            'nik'           => ['required', 'string', 'digits:16', 'unique:users'],
+            'nik'           => ['required', 'string', 'digits:16', 'starts_with:3511', 'unique:users'],
             'name'          => ['required', 'string', 'max:255'],
             'no_whatsapp'   => ['required', 'string', 'max:20'],
             'password'      => ['required', 'confirmed', Rules\Password::defaults()],
@@ -114,7 +114,7 @@ class AuthController extends Controller
             content: new OA\JsonContent(
                 required: ['nik', 'password'],
                 properties: [
-                    new OA\Property(property: 'nik', type: 'string', minLength: 16, maxLength: 16, example: '3277010101900001'),
+                    new OA\Property(property: 'nik', type: 'string', minLength: 16, maxLength: 16, example: '3511010101900001'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password'),
                 ]
             )

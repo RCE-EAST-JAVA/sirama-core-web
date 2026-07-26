@@ -41,9 +41,9 @@
                                 ],
                                 "properties": {
                                     "nik": {
-                                        "description": "16 digit NIK",
+                                        "description": "16 digit NIK diawali 3511 (kode Bondowoso)",
                                         "type": "string",
-                                        "example": "3277010101900001",
+                                        "example": "3511010101900001",
                                         "maxLength": 16,
                                         "minLength": 16
                                     },
@@ -157,7 +157,7 @@
                                 "properties": {
                                     "nik": {
                                         "type": "string",
-                                        "example": "3277010101900001",
+                                        "example": "3511010101900001",
                                         "maxLength": 16,
                                         "minLength": 16
                                     },

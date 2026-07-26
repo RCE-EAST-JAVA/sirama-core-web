@@ -137,9 +137,9 @@
                             @php
                                 $role = auth()->user()->role;
                                 $pengajuanUrl = match($role) {
-                                    'admin_aplikasi' => route('admin.pengajuan.show', $notification->data['pengajuan_id']),
-                                    'admin_desa' => route('desa.pengajuan.show', $notification->data['pengajuan_id']),
-                                    'admin_kecamatan' => route('kecamatan.pengajuan.show', $notification->data['pengajuan_id']),
+                                    'admin_aplikasi' => $notification->data['pengajuan_id'] ? route('admin.pengajuan.show', $notification->data['pengajuan_id']) : '#',
+                                    'admin_desa' => $notification->data['pengajuan_id'] ? route('desa.pengajuan.show', $notification->data['pengajuan_id']) : '#',
+                                    'admin_kecamatan' => $notification->data['pengajuan_id'] ? route('kecamatan.pengajuan.show', $notification->data['pengajuan_id']) : '#',
                                     default => '#',
                                 };
                             @endphp

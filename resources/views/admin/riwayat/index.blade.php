@@ -97,7 +97,7 @@
                             </td>
                             <td class="px-6 py-4 text-gray-500">{{ $p->updated_at->format('d M Y') }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('kecamatan.pengajuan.show', $p) }}"
+                                <a href="{{ route('admin.pengajuan.show', $p) }}"
                                    class="text-brand-600 hover:text-brand-800 font-medium">
                                     Lihat Detail
                                 </a>
