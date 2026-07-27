@@ -25,6 +25,10 @@ class PatchSwaggerServers extends Command
                 'url'         => config('app.url') . '/api',
                 'description' => 'API Server',
             ],
+            [
+                'url'         => 'https://sirama.rce-eastjava.org/api',
+                'description' => 'API Server (RCE East Java)',
+            ],
         ];
 
         file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
