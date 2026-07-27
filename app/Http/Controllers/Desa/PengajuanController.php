@@ -36,6 +36,13 @@ class PengajuanController extends Controller
             $query->where('jenis_layanan', $request->jenis_layanan);
         }
 
+        // Filter NIK
+        if ($request->filled('nik')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('nik', 'like', '%' . $request->nik . '%');
+            });
+        }
+
         $pengajuans = $query->latest()->paginate(15)->withQueryString();
 
         return view('desa.pengajuan.index', compact('pengajuans'));

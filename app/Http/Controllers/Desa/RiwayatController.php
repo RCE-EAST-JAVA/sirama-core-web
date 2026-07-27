@@ -26,6 +26,13 @@ class RiwayatController extends Controller
             $query->where('jenis_layanan', $request->jenis_layanan);
         }
 
+        // Filter NIK
+        if ($request->filled('nik')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('nik', 'like', '%' . $request->nik . '%');
+            });
+        }
+
         if ($request->filled('tanggal_dari')) {
             $query->whereDate('updated_at', '>=', $request->tanggal_dari);
         }

@@ -35,12 +35,22 @@
                 <input type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}"
                     class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
+            <div x-data="{ nik: '{{ request('nik') }}' }">
+                <label class="block text-xs font-medium text-gray-600 mb-1">NIK</label>
+                <input type="text" 
+                       name="nik" 
+                       x-model="nik"
+                       @input.debounce.500ms="$el.closest('form').submit()"
+                       value="{{ request('nik') }}"
+                       placeholder="Cari NIK"
+                       class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
             <div class="flex gap-2">
                 <button type="submit"
                     class="text-sm bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
                     Filter
                 </button>
-                @if(request()->hasAny(['status', 'jenis_layanan', 'tanggal_dari', 'tanggal_sampai']))
+                @if(request()->hasAny(['status', 'jenis_layanan', 'tanggal_dari', 'tanggal_sampai', 'nik']))
                 <a href="{{ route('kecamatan.riwayat') }}"
                     class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg transition-colors">
                     Reset

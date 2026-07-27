@@ -27,10 +27,20 @@
                     <option value="akta_kematian"  {{ request('jenis_layanan') === 'akta_kematian'  ? 'selected' : '' }}>Akta Kematian</option>
                 </select>
             </div>
+            <div x-data="{ nik: '{{ request('nik') }}' }">
+                <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
+                <input type="text" 
+                       name="nik" 
+                       x-model="nik"
+                       @input.debounce.500ms="$el.closest('form').submit()"
+                       value="{{ request('nik') }}"
+                       placeholder="Cari berdasarkan NIK"
+                       class="text-base border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
             <button type="submit" class="text-base bg-brand-600 text-white px-5 py-2.5 rounded-lg hover:bg-brand-700 font-medium transition-colors">
                 Filter
             </button>
-            @if(request()->hasAny(['status', 'jenis_layanan']))
+            @if(request()->hasAny(['status', 'jenis_layanan', 'nik']))
                 <a href="{{ route('desa.pengajuan.index') }}" class="text-base text-gray-500 hover:text-brand-600 px-3 py-2.5">Reset</a>
             @endif
         </form>
