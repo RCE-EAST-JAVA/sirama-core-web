@@ -60,9 +60,15 @@
             {{-- Desa (hanya jika admin_desa) --}}
             <div class="mb-4" x-show="role === 'admin_desa'" x-transition>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Nama Desa <span class="text-red-500">*</span></label>
-                <input type="text" name="desa" value="{{ old('desa') }}"
-                    class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('desa') border-red-400 @enderror"
-                    placeholder="Nama desa (contoh: Cibabat)">
+                <select name="desa"
+                    class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('desa') border-red-400 @enderror">
+                    <option value="">Pilih Desa...</option>
+                    @foreach($desas as $desa)
+                        <option value="{{ $desa->nama }}" {{ old('desa') === $desa->nama ? 'selected' : '' }}>
+                            {{ $desa->nama }}
+                        </option>
+                    @endforeach
+                </select>
                 @error('desa')
                     <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                 @enderror

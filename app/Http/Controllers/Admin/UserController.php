@@ -23,7 +23,8 @@ class UserController extends Controller
 
     public function create(): View
     {
-        return view('admin.users.create');
+        $desas = \App\Models\Desa::orderBy('nama')->get();
+        return view('admin.users.create', compact('desas'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -54,7 +55,8 @@ class UserController extends Controller
     {
         abort_if(! in_array($user->role, ['admin_desa', 'admin_kecamatan']), 403);
 
-        return view('admin.users.edit', compact('user'));
+        $desas = \App\Models\Desa::orderBy('nama')->get();
+        return view('admin.users.edit', compact('user', 'desas'));
     }
 
     public function update(Request $request, User $user): RedirectResponse
