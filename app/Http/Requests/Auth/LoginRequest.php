@@ -34,6 +34,19 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'nik.required' => 'NIK wajib diisi.',
+            'nik.digits'   => 'NIK harus berisi tepat 16 digit angka.',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws ValidationException

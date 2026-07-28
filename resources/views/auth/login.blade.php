@@ -21,7 +21,7 @@
         {{-- NIK / Username --}}
         <div>
             <label for="nik" class="block text-sm font-medium text-gray-700 mb-1.5">
-                Username Admin
+                NIK
             </label>
             <input
                 id="nik"
@@ -31,6 +31,10 @@
                 required
                 autofocus
                 autocomplete="username"
+                maxlength="16"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                placeholder="Masukkan 16 digit NIK"
                 class="w-full border-gray-300 focus:border-brand-500 focus:ring-brand-500 rounded-lg shadow-sm text-base py-2.5 @error('nik') border-red-400 focus:border-red-500 focus:ring-red-500 @enderror"
             >
         </div>
