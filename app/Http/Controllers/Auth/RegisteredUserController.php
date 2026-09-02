@@ -31,7 +31,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nik'        => ['required', 'string', 'digits:16', 'starts_with:3511', 'unique:'.User::class],
+            'nik'        => ['required', 'string', 'digits:16', 'unique:'.User::class],
             'name'       => ['required', 'string', 'max:255'],
             'no_whatsapp'=> ['required', 'string', 'max:20'],
             'password'   => ['required', 'confirmed', Rules\Password::defaults()],
