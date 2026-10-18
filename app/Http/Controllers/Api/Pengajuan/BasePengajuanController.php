@@ -204,6 +204,7 @@ abstract class BasePengajuanController extends Controller
             'formKkPenambahan',
             'formKkPengurangan',
             'formKkPerbaikan',
+            'formKkBaru',
             'riwayatStatuses',
         ]);
 

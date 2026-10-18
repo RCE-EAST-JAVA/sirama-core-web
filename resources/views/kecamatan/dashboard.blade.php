@@ -33,6 +33,7 @@
                     'kk_penambahan'  => 'KK Penambahan',
                     'kk_pengurangan' => 'KK Pengurangan',
                     'kk_perbaikan'   => 'KK Perbaikan',
+                    'kk_baru'        => 'KK Baru / Pisah KK',
                     'akta_kelahiran' => 'Akta Kelahiran',
                     'akta_kematian'  => 'Akta Kematian',
                 ];

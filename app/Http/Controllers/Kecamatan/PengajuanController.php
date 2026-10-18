@@ -54,6 +54,9 @@ class PengajuanController extends Controller
             'formKkPenambahan',
             'formKkPengurangan',
             'formKkPerbaikan.jenisPerbaikan',
+            'formAktaLahir',
+            'formAktaKematian',
+            'formKkBaru',
         ]);
 
         $formDetail = $pengajuan->getFormDetail();

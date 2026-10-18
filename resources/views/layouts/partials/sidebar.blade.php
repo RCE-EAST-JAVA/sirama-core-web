@@ -66,13 +66,22 @@
         <p class="px-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">Pengajuan</p>
     </div>
 
-    <x-sidebar-link href="{{ route('desa.pengajuan.index') }}" :active="request()->routeIs('desa.pengajuan.*')">
+    <x-sidebar-link href="{{ route('desa.pengajuan.index') }}" :active="request()->routeIs('desa.pengajuan.show', 'desa.pengajuan.index')">
         <x-slot name="icon">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
         </x-slot>
         Daftar Pengajuan
+    </x-sidebar-link>
+
+    <x-sidebar-link href="{{ route('desa.pengajuan.buat.index') }}" :active="request()->routeIs('desa.pengajuan.buat.*')">
+        <x-slot name="icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+        </x-slot>
+        Buat Pengajuan
     </x-sidebar-link>
 
     <x-sidebar-link href="{{ route('desa.riwayat') }}" :active="request()->routeIs('desa.riwayat')">

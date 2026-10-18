@@ -10,7 +10,18 @@ class PengajuanController extends Controller
 {
     public function show(Pengajuan $pengajuan): View
     {
-        $pengajuan->loadMissing(['user', 'riwayatStatuses']);
+        $pengajuan->loadMissing([
+            'user',
+            'riwayatStatuses',
+            'formKia',
+            'form3In1',
+            'formKkPenambahan',
+            'formKkPengurangan',
+            'formKkPerbaikan.jenisPerbaikan',
+            'formAktaLahir',
+            'formAktaKematian',
+            'formKkBaru',
+        ]);
 
         $formDetail = $pengajuan->getFormDetail();
 

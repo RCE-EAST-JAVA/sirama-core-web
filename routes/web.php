@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Desa\DashboardController as DesaDashboardController;
 use App\Http\Controllers\Desa\PengajuanController as DesaPengajuanController;
 use App\Http\Controllers\Desa\RiwayatController as DesaRiwayatController;
+use App\Http\Controllers\Desa\BuatPengajuanController as DesaBuatPengajuanController;
 use App\Http\Controllers\Kecamatan\DashboardController as KecamatanDashboardController;
 use App\Http\Controllers\Kecamatan\PengajuanController as KecamatanPengajuanController;
 use App\Http\Controllers\Kecamatan\RiwayatController as KecamatanRiwayatController;
@@ -80,6 +81,12 @@ Route::prefix('desa')->name('desa.')->middleware(['auth', 'role:admin_desa'])->g
 
     Route::prefix('pengajuan')->name('pengajuan.')->group(function () {
         Route::get('/',                          [DesaPengajuanController::class, 'index'])->name('index');
+
+        // Buat pengajuan oleh admin desa — harus sebelum /{pengajuan} agar tidak bentrok
+        Route::get('/buat',                      [DesaBuatPengajuanController::class, 'index'])->name('buat.index');
+        Route::get('/buat/{jenis}',              [DesaBuatPengajuanController::class, 'create'])->name('buat.create');
+        Route::post('/buat/{jenis}',             [DesaBuatPengajuanController::class, 'store'])->name('buat.store');
+
         Route::get('/{pengajuan}',               [DesaPengajuanController::class, 'show'])->name('show');
         Route::post('/{pengajuan}/verifikasi',   [DesaPengajuanController::class, 'verifikasi'])->name('verifikasi');
     });

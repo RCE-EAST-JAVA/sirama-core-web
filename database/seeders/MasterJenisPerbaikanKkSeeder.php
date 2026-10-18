@@ -18,6 +18,7 @@ class MasterJenisPerbaikanKkSeeder extends Seeder
             ['nama_perbaikan' => 'Perbaikan Pekerjaan',      'deskripsi' => 'Koreksi data pekerjaan anggota keluarga'],
             ['nama_perbaikan' => 'Perbaikan Kewarganegaraan','deskripsi' => 'Koreksi data kewarganegaraan anggota keluarga'],
             ['nama_perbaikan' => 'Perbaikan Alamat',         'deskripsi' => 'Koreksi data alamat pada Kartu Keluarga'],
+            ['nama_perbaikan' => 'Perbaikan Pendidikan',     'deskripsi' => 'Koreksi data pendidikan terakhir anggota keluarga'],
         ];
 
         foreach ($jenisPerbaikan as $item) {

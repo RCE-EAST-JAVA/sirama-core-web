@@ -23,8 +23,8 @@ use OpenApi\Attributes as OA;
     securityScheme: 'sanctum',
     type: 'http',
     scheme: 'bearer',
-    bearerFormat: 'JWT',
-    description: 'Masukkan token Sanctum. Contoh: Bearer {token}'
+    bearerFormat: 'Sanctum',
+    description: 'Masukkan token Sanctum yang didapat dari response login. Cukup isi token-nya saja tanpa prefix "Bearer".'
 )]
 #[OA\Tag(name: 'Auth', description: 'Autentikasi warga')]
 #[OA\Tag(name: 'Pengajuan', description: 'Endpoint umum pengajuan (list, detail, status)')]

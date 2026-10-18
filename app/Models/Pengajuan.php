@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\FormKkBaru;
 
 class Pengajuan extends Model
 {
@@ -91,6 +92,11 @@ class Pengajuan extends Model
         return $this->hasOne(FormAktaKematian::class);
     }
 
+    public function formKkBaru(): HasOne
+    {
+        return $this->hasOne(FormKkBaru::class);
+    }
+
     // --- Helpers ---
 
     public function getFormDetail(): ?Model
@@ -103,6 +109,7 @@ class Pengajuan extends Model
             'kk_perbaikan'   => $this->formKkPerbaikan,
             'akta_kelahiran' => $this->formAktaLahir,
             'akta_kematian'  => $this->formAktaKematian,
+            'kk_baru'        => $this->formKkBaru,
             default          => null,
         };
     }
@@ -131,6 +138,7 @@ class Pengajuan extends Model
             'kk_perbaikan'   => 'Perbaikan Data KK',
             'akta_kelahiran' => 'Akta Kelahiran',
             'akta_kematian'  => 'Akta Kematian',
+            'kk_baru'        => 'Pembuatan KK Baru / Pisah KK',
             default          => $this->jenis_layanan,
         };
     }

@@ -22,6 +22,7 @@
                     <option value="kk_penambahan"  {{ request('jenis_layanan') === 'kk_penambahan'  ? 'selected' : '' }}>Penambahan Anggota KK</option>
                     <option value="kk_pengurangan" {{ request('jenis_layanan') === 'kk_pengurangan' ? 'selected' : '' }}>Pengurangan Anggota KK</option>
                     <option value="kk_perbaikan"   {{ request('jenis_layanan') === 'kk_perbaikan'   ? 'selected' : '' }}>Perbaikan Data KK</option>
+                    <option value="kk_baru"        {{ request('jenis_layanan') === 'kk_baru'        ? 'selected' : '' }}>Pembuatan KK Baru / Pisah KK</option>
                     <option value="akta_kelahiran" {{ request('jenis_layanan') === 'akta_kelahiran' ? 'selected' : '' }}>Akta Kelahiran</option>
                     <option value="akta_kematian"  {{ request('jenis_layanan') === 'akta_kematian'  ? 'selected' : '' }}>Akta Kematian</option>
                 </select>

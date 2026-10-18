@@ -19,7 +19,10 @@ class PengajuanResource extends JsonResource
                         fn() => $this->formKkPengurangan,
                         fn() => $this->whenLoaded('formKkPerbaikan',
                             fn() => $this->formKkPerbaikan,
-                            null
+                            fn() => $this->whenLoaded('formKkBaru',
+                                fn() => $this->formKkBaru,
+                                null
+                            )
                         )
                     )
                 )
@@ -44,7 +47,8 @@ class PengajuanResource extends JsonResource
                 $this->relationLoaded('form3In1') ||
                 $this->relationLoaded('formKkPenambahan') ||
                 $this->relationLoaded('formKkPengurangan') ||
-                $this->relationLoaded('formKkPerbaikan'),
+                $this->relationLoaded('formKkPerbaikan') ||
+                $this->relationLoaded('formKkBaru'),
                 fn() => $this->getFormDetail()
             ),
 

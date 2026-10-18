@@ -184,46 +184,10 @@ return [
          * API security definitions. Will be generated into documentation file.
         */
         'securityDefinitions' => [
-            'securitySchemes' => [
-                'sanctum' => [
-                    'type' => 'apiKey',
-                    'description' => 'Wajib pakai prefix Bearer. Contoh: Bearer 23|g77UqotxfbOE47pwL2ZvDsAv36VabFLTcXD1MyJS4fea0dfa',
-                    'name' => 'Authorization',
-                    'in' => 'header',
-                ],
-
-                /* Open API 3.0 support
-                'passport' => [ // Unique name of security
-                    'type' => 'oauth2', // The type of the security scheme. Valid values are "basic", "apiKey" or "oauth2".
-                    'description' => 'Laravel passport oauth2 security.',
-                    'in' => 'header',
-                    'scheme' => 'https',
-                    'flows' => [
-                        "password" => [
-                            "authorizationUrl" => config('app.url') . '/oauth/authorize',
-                            "tokenUrl" => config('app.url') . '/oauth/token',
-                            "refreshUrl" => config('app.url') . '/token/refresh',
-                            "scopes" => []
-                        ],
-                    ],
-                ],
-                */
-            ],
-            'security' => [
-                /*
-                 * Examples of Securities
-                 */
-                [
-                    /*
-                    'oauth2_security_example' => [
-                        'read',
-                        'write'
-                    ],
-
-                    'passport' => []
-                    */
-                ],
-            ],
+            // Security scheme didefinisikan via OA\SecurityScheme di ApiDocController.php
+            // agar konsisten dengan definisi OpenAPI annotations di codebase.
+            'securitySchemes' => [],
+            'security'        => [],
         ],
 
         /*
