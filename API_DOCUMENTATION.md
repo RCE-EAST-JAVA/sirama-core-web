@@ -214,6 +214,106 @@ Logout dan hapus token aktif.
 
 ---
 
+### PUT /api/auth/update-password
+
+Update password untuk user yang sedang login.  
+User harus mengetahui password lama mereka untuk verifikasi keamanan.  
+**Memerlukan token.**
+
+**Request Body**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| password_lama | string | Ya | Password lama yang sedang digunakan |
+| password_baru | string | Ya | Password baru (minimal 8 karakter) |
+| password_baru_confirmation | string | Ya | Konfirmasi password baru (harus sama dengan password_baru) |
+
+**Response 200 (Sukses)**
+```json
+{
+  "message": "Password berhasil diperbarui."
+}
+```
+
+**Response 422 (Password Lama Salah)**
+```json
+{
+  "message": "The password lama field is invalid.",
+  "errors": {
+    "password_lama": ["Password lama tidak sesuai."]
+  }
+}
+```
+
+**Response 422 (Validasi Gagal)**
+```json
+{
+  "message": "The password baru field must be at least 8 characters.",
+  "errors": {
+    "password_baru": ["Password baru minimal 8 karakter."],
+    "password_baru_confirmation": ["Konfirmasi password baru tidak cocok."]
+  }
+}
+```
+
+**Response 401 (Unauthenticated)**
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+**Curl Example**
+```bash
+curl -X PUT http://localhost:8000/api/auth/update-password \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "password_lama": "password123",
+    "password_baru": "newpassword456",
+    "password_baru_confirmation": "newpassword456"
+  }'
+```
+
+**Flutter + Dio Example**
+```dart
+Future<void> updatePassword({
+  required String passwordLama,
+  required String passwordBaru,
+  required String passwordBaruConfirmation,
+}) async {
+  try {
+    final token = await _storage.read(key: 'auth_token');
+    final response = await _dio.put(
+      '/auth/update-password',
+      data: {
+        'password_lama': passwordLama,
+        'password_baru': passwordBaru,
+        'password_baru_confirmation': passwordBaruConfirmation,
+      },
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
+    
+    // Success: response.data['message'] = "Password berhasil diperbarui."
+    print('Password updated successfully');
+  } on DioException catch (e) {
+    if (e.response?.statusCode == 422) {
+      // Validation error atau password lama salah
+      final errors = e.response?.data['errors'];
+      print('Validation errors: $errors');
+    } else if (e.response?.statusCode == 401) {
+      // Token invalid, perlu login ulang
+      print('Unauthenticated');
+    }
+    rethrow;
+  }
+}
+```
+
+---
+
 ## Desa
 
 ### GET /api/desas

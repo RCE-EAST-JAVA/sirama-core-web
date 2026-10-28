@@ -197,4 +197,66 @@ class AuthController extends Controller
             'message' => 'Logout berhasil.',
         ]);
     }
+
+    #[OA\Put(
+        path: '/auth/update-password',
+        summary: 'Update password warga',
+        description: 'Update password untuk user yang sedang login. User harus mengetahui password lama mereka untuk verifikasi keamanan.',
+        tags: ['Auth'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['password_lama', 'password_baru', 'password_baru_confirmation'],
+                properties: [
+                    new OA\Property(property: 'password_lama', type: 'string', format: 'password', example: 'password123', description: 'Password lama yang sedang digunakan'),
+                    new OA\Property(property: 'password_baru', type: 'string', format: 'password', minLength: 8, example: 'newpassword123', description: 'Password baru minimal 8 karakter'),
+                    new OA\Property(property: 'password_baru_confirmation', type: 'string', format: 'password', example: 'newpassword123', description: 'Konfirmasi password baru harus sama'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Password berhasil diperbarui',
+                content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated — token tidak valid'),
+            new OA\Response(
+                response: 422,
+                description: 'Validasi gagal atau password lama salah',
+                content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse')
+            ),
+        ]
+    )]
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'password_lama'              => ['required', 'string'],
+            'password_baru'              => ['required', 'confirmed', Rules\Password::defaults()],
+            'password_baru_confirmation' => ['required', 'string'],
+        ], [
+            'password_lama.required'              => 'Password lama wajib diisi.',
+            'password_baru.required'              => 'Password baru wajib diisi.',
+            'password_baru.min'                   => 'Password baru minimal :min karakter.',
+            'password_baru.confirmed'             => 'Konfirmasi password baru tidak cocok.',
+            'password_baru_confirmation.required' => 'Konfirmasi password baru wajib diisi.',
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($request->password_lama, $user->password)) {
+            throw ValidationException::withMessages([
+                'password_lama' => ['Password lama tidak sesuai.'],
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password_baru),
+        ]);
+
+        return response()->json([
+            'message' => 'Password berhasil diperbarui.',
+        ]);
+    }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PengajuanController as AdminPengajuanController;
 use App\Http\Controllers\Admin\RiwayatController as AdminRiwayatController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\WargaController;
 use App\Http\Controllers\Desa\DashboardController as DesaDashboardController;
 use App\Http\Controllers\Desa\PengajuanController as DesaPengajuanController;
 use App\Http\Controllers\Desa\RiwayatController as DesaRiwayatController;
@@ -68,6 +69,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi
 
     // Manajemen User (admin desa & kecamatan)
     Route::resource('users', AdminUserController::class)->except(['show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Manajemen Warga - Accessible by admin_aplikasi, admin_kecamatan, admin_desa
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi,admin_kecamatan,admin_desa'])->group(function () {
+    Route::prefix('warga')->name('warga.')->group(function () {
+        Route::get('/', [WargaController::class, 'index'])->name('index');
+        Route::get('/{user}/reset', [WargaController::class, 'showResetForm'])->name('reset.form');
+        Route::put('/{user}/reset', [WargaController::class, 'resetPassword'])->name('reset.password');
+    });
 });
 
 /*

@@ -38,6 +38,7 @@ Route::prefix('auth')->group(function () {
 // Protected routes - perlu token Sanctum
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::put('/auth/update-password', [AuthController::class, 'updatePassword']);
 
     // Pengajuan - shared endpoints (index, show, status)
     // Gunakan KiaPengajuanController sebagai concrete class untuk shared methods
