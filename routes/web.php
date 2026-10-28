@@ -15,6 +15,7 @@ use App\Http\Controllers\Kecamatan\RiwayatController as KecamatanRiwayatControll
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +23,18 @@ use Illuminate\Support\Facades\Route;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+// Custom route model binding for warga with desa-scoping
+Route::bind('warga_user', function ($value) {
+    $query = User::where('role', 'warga')->where('id', $value);
+    
+    // Apply desa-scoping for admin_desa at binding level
+    if (auth()->check() && auth()->user()->role === 'admin_desa') {
+        $query->where('desa', auth()->user()->desa);
+    }
+    
+    return $query->firstOrFail();
+});
 
 // Root redirect ke login
 Route::get('/', function () {
@@ -79,8 +92,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi,admin_kecamatan,admin_desa'])->group(function () {
     Route::prefix('warga')->name('warga.')->group(function () {
         Route::get('/', [WargaController::class, 'index'])->name('index');
-        Route::get('/{user}/reset', [WargaController::class, 'showResetForm'])->name('reset.form');
-        Route::put('/{user}/reset', [WargaController::class, 'resetPassword'])->name('reset.password');
+        Route::get('/{warga_user}/reset', [WargaController::class, 'showResetForm'])->name('reset.form');
+        Route::put('/{warga_user}/reset', [WargaController::class, 'resetPassword'])->name('reset.password');
     });
 });
 

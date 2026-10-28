@@ -220,6 +220,13 @@ Update password untuk user yang sedang login.
 User harus mengetahui password lama mereka untuk verifikasi keamanan.  
 **Memerlukan token.**
 
+> **⚠️ Catatan untuk Developer Mobile:**  
+> Ketika terjadi error validasi (422), response memiliki 2 bagian:
+> - `message`: Pesan default Laravel dalam bahasa Inggris
+> - `errors`: Object berisi pesan error dalam Bahasa Indonesia untuk setiap field
+>
+> **Untuk menampilkan pesan ke user, gunakan nilai dari object `errors`, bukan dari field `message` di top level.**
+
 **Request Body**
 
 | Field | Type | Required | Description |
@@ -301,8 +308,15 @@ Future<void> updatePassword({
   } on DioException catch (e) {
     if (e.response?.statusCode == 422) {
       // Validation error atau password lama salah
+      // PENTING: Gunakan errors object untuk pesan Bahasa Indonesia
       final errors = e.response?.data['errors'];
-      print('Validation errors: $errors');
+      
+      // Contoh menampilkan error untuk setiap field:
+      if (errors != null) {
+        errors.forEach((field, messages) {
+          print('$field: ${messages[0]}'); // Ambil pesan pertama dari array
+        });
+      }
     } else if (e.response?.statusCode == 401) {
       // Token invalid, perlu login ulang
       print('Unauthenticated');

@@ -26,28 +26,22 @@ class WargaController extends Controller
         return view('admin.warga.index', compact('wargas'));
     }
 
-    public function showResetForm(User $user): View
+    public function showResetForm(User $warga_user): View
     {
-        // Hanya warga yang boleh direset
-        abort_if($user->role !== 'warga', 403);
+        // Custom route binding already ensures:
+        // 1. User is a warga (role check)
+        // 2. Admin desa can only access warga in their desa
+        // No additional authorization needed here
 
-        // Admin desa hanya bisa reset password warga di desanya
-        if (auth()->user()->role === 'admin_desa' && $user->desa !== auth()->user()->desa) {
-            abort(403);
-        }
-
-        return view('admin.warga.reset-password', compact('user'));
+        return view('admin.warga.reset-password', ['user' => $warga_user]);
     }
 
-    public function resetPassword(Request $request, User $user): RedirectResponse
+    public function resetPassword(Request $request, User $warga_user): RedirectResponse
     {
-        // Hanya warga yang boleh direset
-        abort_if($user->role !== 'warga', 403);
-
-        // Admin desa hanya bisa reset password warga di desanya
-        if (auth()->user()->role === 'admin_desa' && $user->desa !== auth()->user()->desa) {
-            abort(403);
-        }
+        // Custom route binding already ensures:
+        // 1. User is a warga (role check)
+        // 2. Admin desa can only access warga in their desa
+        // No additional authorization needed here
 
         $request->validate([
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -57,11 +51,11 @@ class WargaController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        $user->update([
+        $warga_user->update([
             'password' => Hash::make($request->password),
         ]);
 
         return redirect()->route('admin.warga.index')
-            ->with('success', 'Password warga berhasil direset.');
+            ->with('success', 'Password warga berhasil diperbarui.');
     }
 }
