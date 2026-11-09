@@ -72,7 +72,7 @@
                 <p class="text-xs sm:text-sm text-gray-600">Proses pemuatan selesai dengan sukses.</p>
                 <div class="pt-2 flex items-baseline justify-between border-t border-emerald-200/80">
                     <span class="text-xs sm:text-sm font-semibold text-gray-700">Durasi total:</span>
-                    <span class="text-sm sm:text-base font-extrabold text-emerald-700" x-text="totalDurationFormatted"></span>
+                    <span class="text-sm sm:text-base font-extrabold text-emerald-700" x-text="serverDurationFormatted"></span>
                 </div>
             </div>
 
@@ -128,16 +128,16 @@
                 {{-- Quick Metrics Summary --}}
                 <div class="grid grid-cols-3 gap-2 text-center text-xs">
                     <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
-                        <div class="text-gray-400">Rata-rata</div>
-                        <div class="font-bold text-gray-800" x-text="avgDurationFormatted"></div>
+                        <div class="text-gray-400">Rata-rata DB</div>
+                        <div class="font-bold text-gray-800" x-text="avgServerDurationFormatted"></div>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
-                        <div class="text-gray-400">Tercepat</div>
-                        <div class="font-bold text-emerald-600" x-text="minDurationFormatted"></div>
+                        <div class="text-gray-400">DB Tercepat</div>
+                        <div class="font-bold text-emerald-600" x-text="minServerDurationFormatted"></div>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
-                        <div class="text-gray-400">Terlambat</div>
-                        <div class="font-bold text-amber-600" x-text="maxDurationFormatted"></div>
+                        <div class="text-gray-400">Latensi Web</div>
+                        <div class="font-bold text-amber-600" x-text="avgClientDurationFormatted"></div>
                     </div>
                 </div>
 
@@ -147,8 +147,8 @@
                         <thead class="bg-gray-50 text-gray-500 sticky top-0">
                             <tr>
                                 <th class="px-2.5 py-1.5">#</th>
-                                <th class="px-2.5 py-1.5">Latensi Client</th>
                                 <th class="px-2.5 py-1.5">Server DB</th>
+                                <th class="px-2.5 py-1.5">Latensi Client</th>
                                 <th class="px-2.5 py-1.5">Status</th>
                             </tr>
                         </thead>
@@ -156,8 +156,8 @@
                             <template x-for="item in results" :key="item.index">
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-2.5 py-1.5 font-medium" x-text="'Req ' + item.index"></td>
-                                    <td class="px-2.5 py-1.5" x-text="item.clientTimeMs.toFixed(2) + ' ms'"></td>
-                                    <td class="px-2.5 py-1.5" x-text="item.serverTimeMs ? item.serverTimeMs.toFixed(2) + ' ms' : '-'"></td>
+                                    <td class="px-2.5 py-1.5 font-semibold text-emerald-700" x-text="item.serverTimeMs ? item.serverTimeMs.toFixed(2) + ' ms' : '-'"></td>
+                                    <td class="px-2.5 py-1.5 text-gray-500" x-text="item.clientTimeMs.toFixed(2) + ' ms'"></td>
                                     <td class="px-2.5 py-1.5">
                                         <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
                                             200 OK
@@ -184,11 +184,11 @@
                 status: 'idle',
                 completedRequests: 0,
                 totalRequests: 10,
-                totalDurationMs: 0,
-                totalDurationFormatted: '0.00 ms',
-                avgDurationFormatted: '0.00 ms',
-                minDurationFormatted: '0.00 ms',
-                maxDurationFormatted: '0.00 ms',
+                serverDurationFormatted: '0.00 ms',
+                avgServerDurationFormatted: '0.00 ms',
+                minServerDurationFormatted: '0.00 ms',
+                maxServerDurationFormatted: '0.00 ms',
+                avgClientDurationFormatted: '0.00 s',
                 errorMessage: '',
                 showDetails: false,
                 results: [],
@@ -200,7 +200,6 @@
                     this.results = [];
                     this.showDetails = false;
 
-                    const globalStartTime = performance.now();
                     const batchSize = 10;
                     const endpoint = '{{ route("load-test.run") }}';
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -243,16 +242,13 @@
                                 index: index,
                                 success: false,
                                 clientTimeMs: performance.now() - reqStartTime,
+                                serverTimeMs: 0,
                                 error: err.message
                             };
                         });
                     });
 
                     const settledResults = await Promise.all(requestPromises);
-                    const globalEndTime = performance.now();
-
-                    this.totalDurationMs = globalEndTime - globalStartTime;
-                    this.totalDurationFormatted = this.totalDurationMs.toFixed(2) + ' ms';
 
                     const failedItems = settledResults.filter(r => !r.success);
                     if (failedItems.length > 0) {
@@ -263,15 +259,24 @@
 
                     this.results = settledResults.sort((a, b) => a.index - b.index);
 
-                    const clientTimes = this.results.map(r => r.clientTimeMs);
-                    const sum = clientTimes.reduce((acc, curr) => acc + curr, 0);
-                    const avg = sum / clientTimes.length;
-                    const min = Math.min(...clientTimes);
-                    const max = Math.max(...clientTimes);
+                    // 1. Hitung performa murni Database di Server (Server DB)
+                    const serverTimes = this.results.map(r => r.serverTimeMs || 0).filter(t => t > 0);
+                    const sumServer = serverTimes.reduce((acc, curr) => acc + curr, 0);
+                    const avgServer = serverTimes.length > 0 ? (sumServer / serverTimes.length) : 0;
+                    const minServer = serverTimes.length > 0 ? Math.min(...serverTimes) : 0;
+                    const maxServer = serverTimes.length > 0 ? Math.max(...serverTimes) : 0;
 
-                    this.avgDurationFormatted = avg.toFixed(2) + ' ms';
-                    this.minDurationFormatted = min.toFixed(2) + ' ms';
-                    this.maxDurationFormatted = max.toFixed(2) + ' ms';
+                    // Durasi total database yang tampil di kartu hijau (Mean Latency per request)
+                    this.serverDurationFormatted = avgServer.toFixed(2) + ' ms';
+                    this.avgServerDurationFormatted = avgServer.toFixed(2) + ' ms';
+                    this.minServerDurationFormatted = minServer.toFixed(2) + ' ms';
+                    this.maxServerDurationFormatted = maxServer.toFixed(2) + ' ms';
+
+                    // 2. Hitung performa jaringan client untuk rincian
+                    const clientTimes = this.results.map(r => r.clientTimeMs);
+                    const sumClient = clientTimes.reduce((acc, curr) => acc + curr, 0);
+                    const avgClient = sumClient / clientTimes.length;
+                    this.avgClientDurationFormatted = avgClient.toFixed(2) + ' ms';
 
                     this.status = 'passed';
                 }

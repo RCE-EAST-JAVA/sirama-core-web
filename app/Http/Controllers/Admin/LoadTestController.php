@@ -53,16 +53,13 @@ class LoadTestController extends Controller
                 $queriesCount++;
             });
 
-            // 1. Eksekusi query agregasi / hitung
-            $count = Pengajuan::count();
-
-            // 2. Eksekusi query dengan relasi dan ordering (mensimulasikan query data dashboard/tabel)
+            // 1. Eksekusi query dengan relasi eager loading & ordering
             $records = Pengajuan::with('user')
                 ->latest('id')
                 ->limit(10)
                 ->get();
 
-            // 3. Fallback jika tabel pengajuan masih kosong, query user
+            // 2. Fallback jika tabel pengajuan masih kosong, query user
             if ($records->isEmpty()) {
                 $records = User::latest('id')->limit(10)->get();
             }
