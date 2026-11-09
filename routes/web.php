@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\LoadTestController as AdminLoadTestController;
 use App\Http\Controllers\Admin\PengajuanController as AdminPengajuanController;
 use App\Http\Controllers\Admin\RiwayatController as AdminRiwayatController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -83,6 +84,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_aplikasi
     // Manajemen User (admin desa & kecamatan)
     Route::resource('users', AdminUserController::class)->except(['show']);
 });
+
+// Database Load Testing (Tanpa Middleware untuk keperluan testing)
+Route::get('/load-test', [AdminLoadTestController::class, 'index'])->name('load-test.index');
+Route::post('/load-test/run', [AdminLoadTestController::class, 'run'])->name('load-test.run');
 
 /*
 |--------------------------------------------------------------------------
